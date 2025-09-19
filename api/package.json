@@ -1,0 +1,20 @@
+{
+    "name": "api",
+    "version": "1.0.0",
+    "description": "Backend API for inventory manager",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 2",
+        "dev": "nodemon --watch index.js"
+    },
+    "keywords": [
+        "inventory"
+    ],
+    "author": "cherinet200",
+    "license": "MIT",
+    "dependencies": {
+        "express": "^5.1.0",
+        "nodemon": "^3.1.10"
+    }
+}
