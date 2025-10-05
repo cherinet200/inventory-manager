@@ -1,68 +1,66 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
+@import "tailwindcss";
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  background: #fffaee;
+  overflow-x: hidden;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
   }
-  a:hover {
-    color: #747bff;
+  body {
+    background: #080707;
   }
-  button {
-    background-color: #f9f9f9;
+}
+
+@theme {
+  --color-background: #fffaee;
+  --color-dbackground: #000;
+  --color-box: #eee;
+  --color-darkBox: ##0a0a0a;
+  --color-headerBox: #000;
+  --color-blue: #248;
+  --color-bluehv: #3355aa;
+}
+
+::selection {
+  background-color: #248;
+  color: white;
+}
+
+@layer components {
+  .gradient {
+    @apply bg-gradient-to-r from-black to-blue;
+  }
+  .inputFields {
+    @apply focus:-inset-x-6  border-1 focus:outline-none focus:ring-2 focus:ring-blue rounded-2xl px-5 py-3 text-[20px] w-[400px] dark:border-[#aaa] dark:text-[#aaa];
+  }
+  .labels {
+    @apply absolute bottom-13 left-6 bg-box px-1 text-[22px] dark:bg-darkBox dark:text-[#ddd];
+  }
+  .submit-btn {
+    @apply rounded-full p-2 border-blue border-1 text-blue hover:bg-blue hover:text-[#ddd];
+  }
+  .background-gradient {
+    @apply bg-gradient-to-r from-black to-blue-900;
+  }
+  .inpDark {
+    @apply text-white bg-white;
+  }
+  .addSections {
+    @apply flex relative space-x-5 items-center;
+  }
+  .addInput {
+    @apply w-full px-[15px] py-[10px] rounded border-1 text-[18px];
+  }
+  .addLabel {
+    @apply w-50;
+  }
+  .color {
+    @apply dark:bg-black dark:text-[#ddd] text-[16px];
+  }
+  .input-group {
+    @apply pb-3;
   }
 }
