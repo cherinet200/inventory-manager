@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt";
 import prisma from "../db.ts";
 import type { Request, Response } from "express";
 import { checkPassword, createJwt, hashPassword } from "../module/auth.ts";
@@ -35,17 +36,16 @@ export const signIn = async (req: Request, res: Response) => {
         },
     });
 
-    if (!user) {
-        return res.status(400).json({ message: "User doesn't exist!" });
-    }
+    const DUMMY_HASH = await bcrypt.hash(process.env.DUMMY_PASSWORD!, 12);
+    const hash = user?.password ?? DUMMY_HASH;
 
-    const correctPassword = checkPassword(req.body.password, user.password);
+    const correctPassword = checkPassword(req.body.password, hash);
 
-    if (!correctPassword) {
-        return res.status(400).json({ message: "Incorect Password!" });
+    if (!user || !correctPassword) {
+        return res.status(401).json({ message: "Invalid credentials!" });
     }
 
     const token = createJwt(user);
 
-    return res.json({ data: token });
+    return res.json({ id: user.id, email: user.email, token });
 };
