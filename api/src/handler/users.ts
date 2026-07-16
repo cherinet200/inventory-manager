@@ -47,5 +47,16 @@ export const signIn = async (req: Request, res: Response) => {
 
     const token = createJwt(user);
 
-    return res.json({ id: user.id, email: user.email, token });
+    return res
+        .cookie("refresh_token", token.refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "strict",
+            path: "/",
+        })
+        .json({
+            id: user.id,
+            email: user.email,
+            accessToken: token.accessToken,
+        });
 };
