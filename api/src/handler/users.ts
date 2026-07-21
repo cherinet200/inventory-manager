@@ -52,7 +52,7 @@ export const signIn = async (req: Request, res: Response) => {
             httpOnly: true,
             secure: true,
             sameSite: "strict",
-            path: "/",
+            path: "/token",
         })
         .json({
             id: user.id,
