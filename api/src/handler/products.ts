@@ -118,13 +118,13 @@ export const deleteProduct = async (req: Request, res: Response) => {
     if (!id) return res.status(400).json({ message: "Invalid product ID!" });
 
     try {
-        const product = await prisma.sale.findUnique({
+        const product = await prisma.product.findUnique({
             where: {
                 id: id,
                 userId: req.user!.id,
             },
         });
-        if (!product)
+        if (!product || product.deletedAt)
             return res.status(404).json({ message: "Product not found!" });
 
         const sale = await prisma.sale.findMany({
@@ -133,7 +133,7 @@ export const deleteProduct = async (req: Request, res: Response) => {
             },
         });
 
-        if (!sale) {
+        if (!sale[0]) {
             await prisma.product.delete({
                 where: {
                     id: id,
@@ -173,6 +173,7 @@ export const editProduct = async (req: Request, res: Response) => {
             where: {
                 id: id,
                 userId: req.user!.id,
+                deletedAt: null,
             },
             data: req.body,
         });
