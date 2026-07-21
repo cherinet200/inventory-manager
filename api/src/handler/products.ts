@@ -12,7 +12,6 @@ interface SortQuery {
     maxquantity?: number;
     limit?: number;
     cursor?: number;
-    page?: number;
 }
 
 const MAX_LIMIT = 30;
@@ -33,7 +32,6 @@ export const getProducts = async (
         maxquantity = undefined,
         limit = 5,
         cursor = undefined,
-        page = 1,
     } = { ...req.query };
 
     if (!ALLOWED_SORT_FIELDS.includes(sortBy)) sortBy = "id";
@@ -45,6 +43,7 @@ export const getProducts = async (
             userId: req.user!.id,
             name: { contains: search, mode: "insensitive" },
             category: category,
+            deletedAt: null,
         };
 
         if (minprice || maxprice) {
@@ -66,18 +65,19 @@ export const getProducts = async (
             orderBy: {
                 [sortBy]: order,
             },
-            take: Number(limit),
+            take: Number(limit) + 1,
             cursor: cursor ? { id: Number(cursor) } : undefined,
             skip: cursor ? 1 : 0,
         });
 
-        const nextCursor =
-            products.length === Number(limit)
-                ? products[Number(limit) - 1].id
-                : null;
+        const hasNextPage = products.length > Number(limit);
+        if (hasNextPage) products.pop();
+
+        const nextCursor = hasNextPage ? products[Number(limit) - 1].id : null;
 
         res.status(200).json({
             products,
+            hasNextPage,
             nextCursor,
         });
     } catch (err) {
@@ -86,6 +86,7 @@ export const getProducts = async (
 };
 
 export const createProduct = async (req: Request, res: Response) => {
+    !req.body && res.status(400).json({ message: "Invalid input!" });
     if (
         !req.body.name ||
         !req.body.category ||
@@ -117,9 +118,41 @@ export const deleteProduct = async (req: Request, res: Response) => {
     if (!id) return res.status(400).json({ message: "Invalid product ID!" });
 
     try {
-        await prisma.product.delete({
+        const product = await prisma.sale.findUnique({
             where: {
                 id: id,
+                userId: req.user!.id,
+            },
+        });
+        if (!product)
+            return res.status(404).json({ message: "Product not found!" });
+
+        const sale = await prisma.sale.findMany({
+            where: {
+                productId: id,
+            },
+        });
+
+        if (!sale) {
+            await prisma.product.delete({
+                where: {
+                    id: id,
+                    userId: req.user!.id,
+                },
+            });
+
+            return res.json({
+                message: `Product #${id} is deleted successfully!`,
+            });
+        }
+
+        await prisma.product.update({
+            where: {
+                id: id,
+                userId: req.user!.id,
+            },
+            data: {
+                deletedAt: new Date(),
             },
         });
 
@@ -139,6 +172,7 @@ export const editProduct = async (req: Request, res: Response) => {
         const product = await prisma.product.update({
             where: {
                 id: id,
+                userId: req.user!.id,
             },
             data: req.body,
         });
