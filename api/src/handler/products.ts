@@ -100,6 +100,7 @@ export const createProduct = async (req: Request, res: Response) => {
         return res.status(400).json({ message: "Invalid input!" });
     }
     try {
+        req.body.expirydate = new Date(req.body.expirydate);
         const product = await prisma.product.create({
             data: { ...req.body, userId: req.user!.id },
         });
