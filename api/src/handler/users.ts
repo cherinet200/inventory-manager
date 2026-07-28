@@ -39,7 +39,7 @@ export const signIn = async (req: Request, res: Response) => {
     const DUMMY_HASH = await bcrypt.hash(process.env.DUMMY_PASSWORD!, 12);
     const hash = user?.password ?? DUMMY_HASH;
 
-    const correctPassword = checkPassword(req.body.password, hash);
+    const correctPassword = await checkPassword(req.body.password, hash);
 
     if (!user || !correctPassword) {
         return res.status(401).json({ message: "Invalid credentials!" });
