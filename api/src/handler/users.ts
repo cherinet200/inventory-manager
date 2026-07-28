@@ -42,7 +42,9 @@ export const signIn = async (req: Request, res: Response) => {
     const correctPassword = await checkPassword(req.body.password, hash);
 
     if (!user || !correctPassword) {
-        return res.status(401).json({ message: "Invalid credentials!" });
+        return res
+            .status(401)
+            .json({ success: false, message: "Invalid credentials!" });
     }
 
     const token = createJwt(user);
@@ -55,6 +57,7 @@ export const signIn = async (req: Request, res: Response) => {
             path: "/token",
         })
         .json({
+            sucess: true,
             id: user.id,
             email: user.email,
             accessToken: token.accessToken,
