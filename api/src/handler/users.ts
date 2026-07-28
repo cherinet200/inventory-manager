@@ -57,7 +57,7 @@ export const signIn = async (req: Request, res: Response) => {
             path: "/token",
         })
         .json({
-            sucess: true,
+            success: true,
             id: user.id,
             email: user.email,
             accessToken: token.accessToken,
