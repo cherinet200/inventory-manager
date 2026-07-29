@@ -1,0 +1,133 @@
+import { createFileRoute } from "@tanstack/react-router";
+import React, { useState } from "react";
+import brandLogo from "../assets/inventory.png";
+
+export const Route = createFileRoute("/signin")({
+    component: Signin,
+});
+
+function Signin() {
+    const [formData, setFormData] = useState({
+        email: "",
+        password: "",
+    });
+    const [showWarning, setShowWarning] = useState(false);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setShowWarning(false);
+        const { name, value } = e.target as typeof e.target & {
+            name: string;
+            value: string;
+        };
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+    };
+
+    const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const res = await fetch("/auth/signin", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                ...formData,
+            }),
+        });
+        const response = await res.json();
+
+        if (!response.success) setShowWarning(true);
+    };
+
+    return (
+        <div className="flex justify-center items-center h-screen gap-100 dark:bg-gray-950">
+            {showWarning && (
+                <div className="fixed top-4 left-1/2 -translate-x-1/2 rounded text-red-600 px-8 py-4 shadow-lg border border-red-600">
+                    Invalid credentials!
+                </div>
+            )}
+            <div className="w-[20%] h-full hidden justify-center items-center lg:flex">
+                <img src={brandLogo} alt="Brand" />
+            </div>
+            <form
+                className="h-full w-95 flex justify-center items-center flex-col gap-8"
+                onSubmit={handleSubmit}
+            >
+                <div className="flex justify-center items-center flex-col gap-4">
+                    <img src={brandLogo} alt="Brand" width="60" height="60" />
+                    <h1 className="text-4xl font-semibold text-gray-900 dark:text-white">
+                        Log in to your account
+                    </h1>
+                    <p className="text-lg text-gray-400">
+                        Welcome back! Please enter your details.
+                    </p>
+                </div>
+                <div className="w-full flex justify-center items-center flex-col gap-2">
+                    <div className="w-full flex flex-col">
+                        <label
+                            htmlFor="email"
+                            className="self-start text-base text-gray-600 dark:text-gray-300 font-medium"
+                        >
+                            Email
+                        </label>
+                        <input
+                            type="email"
+                            name="email"
+                            id="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            placeholder="Enter your email"
+                            className="w-full p-2.5 border border-gray-600 rounded-md text-base"
+                            required
+                        />
+                    </div>
+                    <div className="w-full">
+                        <label
+                            htmlFor="password"
+                            className="self-start text-base text-gray-600 dark:text-gray-300 font-medium"
+                        >
+                            Password
+                        </label>
+                        <input
+                            type="password"
+                            name="password"
+                            id="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            placeholder="Enter your password"
+                            className="w-full p-2.5 border border-gray-200 dark:border-gray-600 rounded-md text-base"
+                            required
+                        />
+                    </div>
+                    <a
+                        href="/"
+                        className="text-base text-blue-500 font-medium self-end decoration-none"
+                    >
+                        Forgot password
+                    </a>
+                </div>
+                <div className="w-full flex justify-center items-center flex-col gap-5">
+                    <button
+                        type="submit"
+                        className="text-lg text-white bg-blue-500 dark:bg-blue-600 font-normal cursor-pointer border-none rounded-md w-full p-2.5"
+                    >
+                        Sign in
+                    </button>
+                    <div className="text-base text-gray-400 align-center">
+                        Don't have an account?{" "}
+                        <a
+                            href="/signup"
+                            className="text-base text-blue-500 self-end"
+                        >
+                            Sign up
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    );
+}
+
+export default Signin;
