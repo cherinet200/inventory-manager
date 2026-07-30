@@ -11,7 +11,9 @@ export const signUp = async (req: Request, res: Response) => {
     });
 
     if (user) {
-        return res.status(400).json({ message: "User already exists" });
+        return res
+            .status(400)
+            .json({ success: false, message: "User already exists" });
     }
 
     if (!user) {
@@ -24,6 +26,7 @@ export const signUp = async (req: Request, res: Response) => {
         });
 
         return res.status(201).json({
+            success: true,
             message: "User created successfully! Enjoy our services.",
         });
     }
@@ -59,7 +62,10 @@ export const signIn = async (req: Request, res: Response) => {
         .json({
             success: true,
             id: user.id,
-            email: user.email,
+            user: {
+                email: user.email,
+                name: user.name,
+            },
             accessToken: token.accessToken,
         });
 };
