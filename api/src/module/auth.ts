@@ -61,7 +61,6 @@ export const tokenRefresher = async (req: Request, res: Response) => {
                 httpOnly: true,
                 secure: true,
                 sameSite: "strict",
-                path: "/token",
             })
             .json({ accessToken });
     } catch (err) {
