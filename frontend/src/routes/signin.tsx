@@ -1,6 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import React, { useState } from "react";
-import brandLogo from "../assets/inventory.png";
+import Logo from "../assets/inventory.png";
+import { useAuth } from "../contexts/auth";
 
 export const Route = createFileRoute("/signin")({
     component: Signin,
@@ -11,7 +12,10 @@ function Signin() {
         email: "",
         password: "",
     });
+    const [showMessage, setShowMessage] = useState(false);
     const [showWarning, setShowWarning] = useState(false);
+    const navigate = useNavigate();
+    const { login } = useAuth();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setShowWarning(false);
@@ -27,11 +31,13 @@ function Signin() {
 
     const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
+
         const res = await fetch("/auth/signin", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
+            credentials: "include",
             body: JSON.stringify({
                 ...formData,
             }),
@@ -39,24 +45,38 @@ function Signin() {
         const response = await res.json();
 
         if (!response.success) setShowWarning(true);
+        if (response.success) {
+            setShowMessage(true);
+
+            login(response.user, response.accessToken);
+
+            setTimeout(() => {
+                navigate({ to: "/dashboard" });
+            }, 1000);
+        }
     };
 
     return (
         <div className="flex justify-center items-center h-screen gap-100 dark:bg-gray-950">
+            {showMessage && (
+                <div className="fixed top-4 left-1/2 -translate-x-1/2 rounded text-green-600 px-8 py-4 shadow-lg border border-green-600">
+                    Login successful! Redirecting to dashboard...
+                </div>
+            )}
             {showWarning && (
                 <div className="fixed top-4 left-1/2 -translate-x-1/2 rounded text-red-600 px-8 py-4 shadow-lg border border-red-600">
                     Invalid credentials!
                 </div>
             )}
             <div className="w-[20%] h-full hidden justify-center items-center lg:flex">
-                <img src={brandLogo} alt="Brand" />
+                <img src={Logo} alt="Brand" />
             </div>
             <form
                 className="h-full w-95 flex justify-center items-center flex-col gap-8"
                 onSubmit={handleSubmit}
             >
                 <div className="flex justify-center items-center flex-col gap-4">
-                    <img src={brandLogo} alt="Brand" width="60" height="60" />
+                    <img src={Logo} alt="Brand" width="60" height="60" />
                     <h1 className="text-4xl font-semibold text-gray-900 dark:text-white">
                         Log in to your account
                     </h1>
