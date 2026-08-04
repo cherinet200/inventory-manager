@@ -3,9 +3,21 @@ import { createRoot } from "react-dom/client";
 import "../index.css";
 import { router } from "./router";
 import { RouterProvider } from "@tanstack/react-router";
+import { useAuth, AuthProvider } from "./contexts/auth";
+import { useProduct, ProductProvider } from "./contexts/product";
+
+function App() {
+    const { user } = useAuth();
+    const { products } = useProduct();
+    return <RouterProvider router={router} context={{ user, products }} />;
+}
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
-        <RouterProvider router={router} />
+        <AuthProvider>
+            <ProductProvider>
+                <App />
+            </ProductProvider>
+        </AuthProvider>
     </StrictMode>,
 );
