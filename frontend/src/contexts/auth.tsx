@@ -57,7 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         Cookies.remove("refToken");
         Cookies.remove("user");
         setToken(null);
-        setRefToken("");
+        setRefToken(null);
         setUser(null);
         window.location.href = "/";
     }
@@ -70,8 +70,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
         setToken(newToken);
     }
-
-    console.log("Refresh token:", refToken);
 
     return (
         <AuthContext.Provider
