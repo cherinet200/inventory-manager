@@ -7,6 +7,7 @@ import {
 import type { User } from "../types/types.js";
 import Sidebar from "../components/sidebar.js";
 import Navbar from "../components/navbar.js";
+import CreateProduct from "../components/createProduct";
 
 export const Route = createFileRoute("/_auth")({
     beforeLoad({ context }) {
@@ -25,6 +26,7 @@ function RouteComponent() {
     });
     return (
         <div className="flex bg-gray-100 dark:bg-gray-900">
+            <CreateProduct />
             <div className="hidden lg:flex justify-center w-72 mr-0.5 bg-white dark:bg-gray-950 rounded-md shadow-sm">
                 <Sidebar currentPath={pathname} />
             </div>
