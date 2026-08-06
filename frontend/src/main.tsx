@@ -4,7 +4,7 @@ import "../index.css";
 import { router } from "./router";
 import { RouterProvider } from "@tanstack/react-router";
 import { useAuth, AuthProvider } from "./contexts/auth";
-import { useProduct, ProductProvider } from "./contexts/product";
+import { useProduct, ProductProvider } from "./contexts/products";
 
 function App() {
     const { user } = useAuth();
