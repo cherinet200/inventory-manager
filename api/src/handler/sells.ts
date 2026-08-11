@@ -43,6 +43,24 @@ export const sellProduct = async (req: Request, res: Response) => {
             updatedProduct,
         });
     } catch (err) {
-        res.json({ message: "Couldn't sale product", err });
+        res.json({ message: "Couldn't sale product" });
+        console.error(err);
+    }
+};
+
+export const getSales = async (req: Request, res: Response) => {
+    try {
+        const sales = await prisma.sale.findMany({
+            where: {
+                product: {
+                    userId: req.user!.id,
+                },
+            },
+            take: 10,
+        });
+        res.json(sales);
+    } catch (err) {
+        res.status(500).json({ message: "Couldn't get sales" });
+        console.error(err);
     }
 };
