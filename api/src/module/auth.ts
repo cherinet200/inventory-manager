@@ -4,6 +4,7 @@ import prisma from "../db.ts";
 import jwt from "jsonwebtoken";
 import type { JwtPayload, SignOptions } from "jsonwebtoken";
 import type { NextFunction, Request, Response } from "express";
+import { randomUUID } from "crypto";
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ export const checkPassword = async (pass: string, hashedPass: string) =>
 export const createJwt = (user: jwt) => {
     const payload = {
         id: user.id,
+        jti: randomUUID(),
     };
     const accessToken = generateToken(payload, "15m");
     const refreshToken = generateToken(payload, "7d");
@@ -34,7 +36,7 @@ export const tokenRefresher = async (req: Request, res: Response) => {
     const token = req.body.token;
 
     if (!token)
-        return res.status(400).json({ message: "Refresh token is missing!" });
+        return res.status(401).json({ message: "Refresh token is missing!" });
 
     try {
         const user = jwt.verify(
@@ -52,15 +54,23 @@ export const tokenRefresher = async (req: Request, res: Response) => {
             return res.status(401).json({ message: "Invalid token!" });
 
         const accessToken = generateToken({ id: user.id }, "15m");
-        const refreshToken = generateToken({ id: user.id }, "7d");
-        saveRefreshToken(refreshToken, user.id);
+        const refreshToken = generateToken(
+            { id: user.id, jti: randomUUID() },
+            "7d",
+        );
+        await saveRefreshToken(refreshToken, user.id);
 
         return res
             .status(200)
-            .cookie("refresh_token", refreshToken, {
-                httpOnly: true,
+            .cookie("refToken", refreshToken, {
+                // httpOnly: true,
                 secure: true,
-                sameSite: "strict",
+                // sameSite: "lax",
+            })
+            .cookie("token", accessToken, {
+                httpOnly: false,
+                secure: true,
+                sameSite: "none",
             })
             .json({ accessToken });
     } catch (err) {
@@ -75,7 +85,11 @@ const generateToken = (payload: object, expiry: SignOptions["expiresIn"]) => {
 };
 
 const saveRefreshToken = async (token: string, id: string) => {
-    await prisma.refreshToken.deleteMany();
+    await prisma.refreshToken.deleteMany({
+        where: {
+            userId: id,
+        },
+    });
     await prisma.refreshToken.create({
         data: {
             token: token,
