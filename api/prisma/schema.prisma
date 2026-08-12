@@ -47,8 +47,8 @@ model Product {
 model Sale {
   id        Int     @id @default(autoincrement())
   quantity  Int
-  price     Float // Each
-  total     Int // price * quantity
+  price     Float
+  total     Int
   productId Int
   product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
 }
