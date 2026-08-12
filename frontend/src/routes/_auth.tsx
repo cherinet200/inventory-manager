@@ -7,7 +7,7 @@ import {
 import type { User } from "../types/types.js";
 import Sidebar from "../components/sidebar.js";
 import Navbar from "../components/navbar.js";
-import CreateProduct from "../components/createProduct";
+import { CreateProduct } from "../components/productForms.js";
 
 export const Route = createFileRoute("/_auth")({
     beforeLoad({ context }) {
