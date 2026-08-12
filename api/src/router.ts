@@ -15,7 +15,7 @@ router.post("/createProduct", createProduct);
 router.put("/editProduct/:id", editProduct);
 router.post("/sellProduct", sellProduct);
 router.get("/sales", getSales);
-router.delete("/deleteProduct/:id", deleteProduct);
+router.delete("/deleteProduct", deleteProduct);
 
 router.all("/*splat", (req, res) => {
     res.status(404).json({ message: "Route not found!" });
