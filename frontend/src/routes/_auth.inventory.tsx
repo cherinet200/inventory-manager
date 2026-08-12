@@ -3,13 +3,16 @@ import { useAuth } from "../contexts/auth";
 import { useEffect, useState } from "react";
 import { Td, Th } from "../components/table";
 import { useProduct } from "../contexts/products";
-import type { Product } from "../types/types";
+import { FormData, Product } from "../types/types";
+import SellProduct from "../components/sellProduct";
+import { EditProduct } from "../components/productForms";
 import {
     ListFilter,
     Trash2,
     LoaderCircle,
     CircleCheck,
     Pencil,
+    BadgeDollarSign,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_auth/inventory")({
@@ -32,7 +35,16 @@ type ContextMenu = {
 function Inventory() {
     const { token } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
-    const { products, fetchProduct, setFormVisibility } = useProduct();
+    const {
+        products,
+        fetchProduct,
+        deleteProduct,
+        hasPreviousPage,
+        hasNextPage,
+        setFormVisibility,
+        setEditFormVisibility,
+        setSalesFormVisibility,
+    } = useProduct();
     const [contextMenu, setContextMenu] = useState<ContextMenu | null>(null);
     const ProductsId: number[] = [];
     products.map((product) => ProductsId.push(product.id));
@@ -65,12 +77,47 @@ function Inventory() {
     const date = (date: string) => {
         return date.slice(0, 10);
     };
+    const defaultFormData: FormData = {
+        productname: "",
+        category: "",
+        buyingprice: 0,
+        sellingprice: 0,
+        quantity: 0,
+        unit: "",
+        expirydate: new Date().toISOString().slice(0, 16),
+        threshold: 0,
+    };
+
+    const renameKeys = () => {
+        const product = products.find((product) => product.id === selected[0]);
+        if (!product) return defaultFormData;
+        const { id, name, expirydate, ...rest } = product;
+        // setSelected([]);
+        return {
+            ...rest,
+            productname: name,
+            expirydate: new Date(expirydate).toISOString().slice(0, 16),
+        };
+    };
 
     return (
         <div className="flex flex-col m-10 py-8 bg-white dark:bg-gray-950 rounded-md">
+            {selected.length === 1 && (
+                <EditProduct
+                    productId={selected[0]}
+                    defaultFormData={renameKeys()}
+                    setSelected={setSelected}
+                />
+            )}
+            {selected.length === 1 && (
+                <SellProduct
+                    productId={selected[0]}
+                    setSelected={setSelected}
+                />
+            )}
             {contextMenu && (
                 <div
-                    className="fixed z-30 w-32 rounded-lg shadow-lg dark:bg-gray-800 left-[]"
+                    className="fixed z-30 w-32 rounded-md shadow-lg dark:bg-gray-800"
                     style={{
                         left: contextMenu.x,
                         top: contextMenu.y,
@@ -78,22 +125,57 @@ function Inventory() {
                 >
                     <button
                         onClick={() => {
-                            setSelected((prev) => [
-                                ...prev,
-                                +contextMenu.productId,
-                            ]);
+                            if (selected.length !== 0) {
+                                if (selected.includes(+contextMenu.productId)) {
+                                    setContextMenu(null);
+                                } else {
+                                    setSelected((prev) => [
+                                        ...prev,
+                                        +contextMenu.productId,
+                                    ]);
+                                }
+                            } else {
+                                setSelected((prev) => [
+                                    ...prev,
+                                    +contextMenu.productId,
+                                ]);
+                            }
                             setContextMenu(null);
                         }}
-                        className="flex w-full items-center justify-center rounded-xl gap-2 px-4 py-2 hover:bg-gray-700"
+                        className="flex w-full items-center rounded-lg gap-2 px-4 py-2 hover:bg-gray-700"
                     >
                         <CircleCheck className="h-4 w-4" />
                         Select
                     </button>
                     <button
                         onClick={() => {
+                            setSelected([+contextMenu.productId]);
+                            setSalesFormVisibility("flex");
                             setContextMenu(null);
                         }}
-                        className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2 hover:text-red-600 hover:bg-gray-700"
+                        className="flex w-full items-center rounded-lg gap-2 px-4 py-2 hover:bg-gray-700"
+                    >
+                        <BadgeDollarSign className="h-4 w-4" />
+                        Sell
+                    </button>
+                    <button
+                        onClick={() => {
+                            setSelected([+contextMenu.productId]);
+                            setEditFormVisibility("flex");
+                            setContextMenu(null);
+                        }}
+                        className="flex w-full items-center gap-2 rounded-lg px-4 py-2  hover:text-amber-400 hover:bg-gray-700"
+                    >
+                        <Pencil className="h-4 w-4" />
+                        Edit
+                    </button>
+                    <button
+                        onClick={() => {
+                            deleteProduct([+contextMenu.productId]);
+                            setSelected([]);
+                            setContextMenu(null);
+                        }}
+                        className="flex w-full items-center gap-2 rounded-lg px-4 py-2 hover:text-red-600 hover:bg-gray-700"
                     >
                         <Trash2 className="h-4 w-4" />
                         Delete
@@ -111,14 +193,28 @@ function Inventory() {
                     >
                         Add Product
                     </button>
-                    <button className="flex gap-2 items-center px-2 py-2 border border-gray-600 rounded-md hover:border-gray-700 hover:text-gray-400 hover:cursor-pointer">
-                        <ListFilter size={16} /> Filters
-                    </button>
-                    <button className="flex gap-2 items-center px-2 py-2 border border-gray-600 rounded-md hover:border-amber-600 hover:text-amber-600 hover:cursor-pointer">
+                    <button
+                        onClick={() => {
+                            console.log(selected);
+                            if (selected.length === 1)
+                                setEditFormVisibility("flex");
+                        }}
+                        className={`flex gap-2 items-center px-2 py-2 border border-gray-600 rounded-md hover:border-amber-400 hover:text-amber-400 hover:cursor-pointer ${selected.length !== 1 && "text-gray-400"}`}
+                    >
                         <Pencil size={16} /> Edit
                     </button>
-                    <button className="flex gap-2 items-center px-2 py-2 border border-gray-600 rounded-md hover:border-red-600 hover:text-red-600 hover:cursor-pointer">
+                    <button
+                        onClick={() => {
+                            console.log(selected);
+                            deleteProduct(selected);
+                            setSelected([]);
+                        }}
+                        className={`flex gap-2 items-center px-2 py-2 border border-gray-600 rounded-md hover:border-red-600 hover:text-red-600 hover:cursor-pointer ${selected.length < 1 && "text-gray-400"}`}
+                    >
                         <Trash2 size={16} /> Delete
+                    </button>
+                    <button className="flex gap-2 items-center px-2 py-2 border border-gray-600 rounded-md hover:border-gray-700 hover:text-gray-400 hover:cursor-pointer">
+                        <ListFilter size={16} /> Filters
                     </button>
                 </div>
             </div>
@@ -131,7 +227,7 @@ function Inventory() {
                                     type="checkbox"
                                     name="check"
                                     id="checkAll"
-                                    className="appearance-none w-3 h-3 rounded-[100px] border-2 border-gray-500 bg-black checked:border-blue-800 cursor-pointer"
+                                    className="appearance-none w-3 h-3 rounded-[100px] border-2 border-gray-500 bg-black checked:border-blue-600 cursor-pointer"
                                     onChange={() => {
                                         selected.length !== ProductsId.length
                                             ? setSelected(ProductsId)
@@ -186,7 +282,7 @@ function Inventory() {
                                         type="checkbox"
                                         name="check"
                                         id={product.id + ""}
-                                        className="appearance-none w-3 h-3 rounded-[100px] border-2 border-gray-500 bg-black checked:border-blue-800 cursor-pointer"
+                                        className="appearance-none w-3 h-3 rounded-[100px] border-2 border-gray-500 bg-black checked:border-blue-600 cursor-pointer"
                                         checked={
                                             selected.includes(product.id) &&
                                             true
@@ -206,6 +302,37 @@ function Inventory() {
                         </tr>
                     ))}
                 </tbody>
+                <tfoot>
+                    <tr>
+                        <Td colSpan={7}>
+                            <div className="flex items-center justify-between">
+                                <button
+                                    className={`border px-5 py-2 rounded-lg ${!hasPreviousPage && "text-gray-600"}`}
+                                    onClick={async () => {
+                                        await fetchProduct(
+                                            undefined,
+                                            true,
+                                            "backward",
+                                        );
+                                    }}
+                                    disabled={!hasPreviousPage}
+                                >
+                                    Previous
+                                </button>
+                                <button
+                                    className={`border px-5 py-2 rounded-lg ${!hasNextPage && "text-gray-600"}`}
+                                    onClick={async () => {
+                                        await fetchProduct(undefined, true);
+                                        setSelected([]);
+                                    }}
+                                    disabled={!hasNextPage}
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        </Td>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     );
