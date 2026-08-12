@@ -12,6 +12,7 @@ interface SortQuery {
     maxquantity?: number;
     limit?: number;
     cursor?: number;
+    direction?: "forward" | "backward";
 }
 
 const MAX_LIMIT = 30;
@@ -23,7 +24,7 @@ export const getProducts = async (
 ) => {
     let {
         sortBy = "id",
-        order = "asc",
+        order = "desc",
         search = "",
         category = undefined,
         minprice = undefined,
@@ -32,6 +33,7 @@ export const getProducts = async (
         maxquantity = undefined,
         limit = 5,
         cursor = undefined,
+        direction = "forward",
     } = { ...req.query };
 
     if (!ALLOWED_SORT_FIELDS.includes(sortBy)) sortBy = "id";
@@ -60,23 +62,36 @@ export const getProducts = async (
             maxquantity && (where.quantity.lte = Number(maxquantity));
         }
 
+        const isBackward = direction === "backward";
+
         const products = await prisma.product.findMany({
             where,
-            orderBy: {
-                [sortBy]: order,
-            },
-            take: Number(limit) + 1,
+            orderBy: [
+                {
+                    [sortBy]: order,
+                },
+                {
+                    id: order,
+                },
+            ],
+            take: isBackward ? -(Number(limit) + 1) : Number(limit) + 1,
             cursor: cursor ? { id: Number(cursor) } : undefined,
             skip: cursor ? 1 : 0,
         });
 
-        const hasNextPage = products.length > Number(limit);
-        if (hasNextPage) products.pop();
+        let hasNextPage = false;
+        let hasPreviousPage = false;
+
+        if (direction !== "backward") {
+            hasNextPage = products.length > Number(limit);
+            if (hasNextPage) products.pop();
+        }
 
         const nextCursor = hasNextPage ? products[Number(limit) - 1].id : null;
-
         res.status(200).json({
+            success: true,
             products,
+            hasPreviousPage,
             hasNextPage,
             nextCursor,
         });
@@ -88,7 +103,7 @@ export const getProducts = async (
 export const createProduct = async (req: Request, res: Response) => {
     !req.body && res.status(400).json({ message: "Invalid input!" });
     if (
-        !req.body.name ||
+        !req.body.productname ||
         !req.body.category ||
         !req.body.buyingprice ||
         !req.body.sellingprice ||
@@ -100,56 +115,72 @@ export const createProduct = async (req: Request, res: Response) => {
         return res.status(400).json({ message: "Invalid input!" });
     }
     try {
-        req.body.expirydate = new Date(req.body.expirydate);
+        const { productname, ...rest } = req.body;
+        const productData = { name: productname, ...rest };
+
+        productData.expirydate = new Date(productData.expirydate);
         const product = await prisma.product.create({
-            data: { ...req.body, userId: req.user!.id },
+            data: { ...productData, userId: req.user!.id },
         });
 
         res.status(201).json({
+            success: true,
             message: "Product created successsfully!",
             product,
         });
     } catch (err) {
-        res.status(400).json({ message: "Couldn't create product", err });
+        console.log(err);
+        res.status(400).json({ message: "Couldn't create product" });
     }
 };
 
 export const deleteProduct = async (req: Request, res: Response) => {
-    const id = +req.params.id;
-    if (!id) return res.status(400).json({ message: "Invalid product ID!" });
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0)
+        return res.status(400).json({ message: "Invalid product ID!" });
+
+    const productIds = ids.map(Number);
 
     try {
-        const product = await prisma.product.findUnique({
+        const product = await prisma.product.findMany({
             where: {
-                id: id,
+                id: { in: productIds },
                 userId: req.user!.id,
+                deletedAt: null,
             },
         });
-        if (!product || product.deletedAt)
+        if (!product)
             return res.status(404).json({ message: "Product not found!" });
 
         const sale = await prisma.sale.findMany({
             where: {
-                productId: id,
+                productId: {
+                    in: productIds,
+                },
             },
         });
 
         if (!sale[0]) {
-            await prisma.product.delete({
+            await prisma.product.deleteMany({
                 where: {
-                    id: id,
+                    id: {
+                        in: productIds,
+                    },
                     userId: req.user!.id,
                 },
             });
 
             return res.json({
-                message: `Product #${id} is deleted successfully!`,
+                success: true,
+                message: `Product #${productIds} are deleted successfully!`,
             });
         }
 
-        await prisma.product.update({
+        await prisma.product.updateMany({
             where: {
-                id: id,
+                id: {
+                    in: productIds,
+                },
                 userId: req.user!.id,
             },
             data: {
@@ -158,7 +189,8 @@ export const deleteProduct = async (req: Request, res: Response) => {
         });
 
         res.json({
-            message: `Product #${id} is deleted successfully!`,
+            success: true,
+            message: `Product #${productIds} are deleted successfully!`,
         });
     } catch (err) {
         res.status(400).json({ message: "Invalid product ID!", err });
@@ -168,6 +200,12 @@ export const deleteProduct = async (req: Request, res: Response) => {
 export const editProduct = async (req: Request, res: Response) => {
     const id = +req.params.id;
     if (!id) return res.status(400).json({ message: "Invalid product ID!" });
+    const { productname, expirydate, ...rest } = req.body;
+    const productData = {
+        name: productname,
+        expirydate: new Date(expirydate),
+        ...rest,
+    };
 
     try {
         const product = await prisma.product.update({
@@ -176,14 +214,16 @@ export const editProduct = async (req: Request, res: Response) => {
                 userId: req.user!.id,
                 deletedAt: null,
             },
-            data: req.body,
+            data: productData,
         });
 
         res.json({
+            success: true,
             message: `Product #${id} is edited successfully!`,
             product,
         });
     } catch (err) {
-        res.status(400).json({ message: "Invalid product ID!", err });
+        res.status(400).json({ message: "Invalid product ID!" });
+        console.error(err);
     }
 };
