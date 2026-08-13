@@ -11,7 +11,11 @@ import { CreateProduct } from "../components/productForms.js";
 
 export const Route = createFileRoute("/_auth")({
     beforeLoad({ context }) {
-        if ((context as { user: User | null }).user === null) {
+        if (
+            (context as { user: User | null }).user === null ||
+            ((context as { token: string | null }).token === null &&
+                (context as { refToken: string | null }).refToken === null)
+        ) {
             throw redirect({
                 to: "/signin",
             });
