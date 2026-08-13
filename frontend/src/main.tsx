@@ -5,18 +5,26 @@ import { router } from "./router";
 import { RouterProvider } from "@tanstack/react-router";
 import { useAuth, AuthProvider } from "./contexts/auth";
 import { useProduct, ProductProvider } from "./contexts/products";
+import { SalesProvider } from "./contexts/sales";
 
 function App() {
-    const { user } = useAuth();
+    const { user, token, refToken } = useAuth();
     const { products } = useProduct();
-    return <RouterProvider router={router} context={{ user, products }} />;
+    return (
+        <RouterProvider
+            router={router}
+            context={{ user, token, refToken, products }}
+        />
+    );
 }
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
         <AuthProvider>
             <ProductProvider>
-                <App />
+                <SalesProvider>
+                    <App />
+                </SalesProvider>
             </ProductProvider>
         </AuthProvider>
     </StrictMode>,
