@@ -73,16 +73,16 @@ function Sidebar({ currentPath }: SidebarProps) {
                 ))}
             </ul>
             <div className="flex flex-col mt-auto mb-0.5 py-2 text-center rounded-lg shadow-2xl border border-gray-100 dark:border-gray-900">
-                <div className="flex items-center px-4 gap-8">
-                    <div className="text-gray-300 bg-blue-600/80 p-5 rounded-[100%] text-center">
-                        CB
-                    </div>
-                    <div>
-                        <div className="text-lg font-semibold text-gray-400">
-                            {name}
+                <div className="flex items-center justify-between px-4 gap-8">
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center justify-center text-gray-300 bg-blue-600/80 h-13 w-13 rounded-[100%] font-semibold text-center">
+                            CB
                         </div>
-                        <div className="mt-1 text-sm text-gray-500">
-                            {email}
+                        <div className="flex flex-col">
+                            <div className="text-lg font-semibold text-gray-400 leading-none">
+                                {name}
+                            </div>
+                            <div className="text-sm text-gray-500">{email}</div>
                         </div>
                     </div>
                     <ChevronsUpDown
