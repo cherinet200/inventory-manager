@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import brandLogo from "../assets/inventory.png";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/signup")({
     component: Signup,
@@ -15,7 +15,6 @@ function Signup() {
         email: "",
         password: "",
     });
-    const navigate = useNavigate();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setShowWarning(false);
@@ -32,6 +31,8 @@ function Signup() {
     const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
 
+        console.log("Form data:", formData);
+        console.log("Submitting form data:", JSON.stringify(formData));
         const res = await fetch("/auth/signup", {
             method: "POST",
             headers: {
@@ -44,9 +45,7 @@ function Signup() {
         if (response.success) {
             setShowMessage(true);
 
-            setTimeout(() => {
-                navigate({ to: "/signin" });
-            }, 5000);
+            window.location.href = "/signin";
         }
 
         if (response.message === "User already exists") {
@@ -133,6 +132,8 @@ function Signup() {
                             type="password"
                             name="password"
                             id="password"
+                            value={formData.password}
+                            onChange={handleChange}
                             placeholder="Enter your password"
                             className="w-full p-2.5 border border-gray-200 dark:border-gray-600 rounded-md text-base"
                             required
