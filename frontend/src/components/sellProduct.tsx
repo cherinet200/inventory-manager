@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Fragment } from "react/jsx-runtime";
-// import { useAuth } from "../contexts/auth";
 import { useProduct } from "../contexts/products";
-import { SalesData } from "../types/types";
+import { ProductForm } from "./productForms";
+import { SalesData, FormData } from "../types/types";
 
 interface Field {
     label: string;
@@ -13,10 +13,11 @@ interface Field {
 
 interface SellProduct {
     productId: number;
+    productData: FormData;
     setSelected: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
-function SellProduct({ productId, setSelected }: SellProduct) {
+function SellProduct({ productId, productData, setSelected }: SellProduct) {
     const { sellProduct, salesFormOpen, setSalesFormVisibility } = useProduct();
 
     const defaultFormData: SalesData = {
@@ -25,7 +26,9 @@ function SellProduct({ productId, setSelected }: SellProduct) {
         price: 0,
         total: 0,
     };
+
     const [formData, setFormData] = useState<SalesData>(defaultFormData);
+
     const fields: Field[] = [
         {
             label: "Quantity",
@@ -71,11 +74,17 @@ function SellProduct({ productId, setSelected }: SellProduct) {
 
     return (
         <div
-            className={`fixed inset-0 bg-black/55 ${salesFormOpen} items-center justify-center z-50`}
+            className={`fixed inset-0 flex gap-30 bg-black/55 ${salesFormOpen} items-center justify-center z-50`}
+            onMouseDown={() => {
+                setSelected([]);
+                setSalesFormVisibility("hidden");
+            }}
         >
+            <ProductForm type={"Product To Be Sold"} formData={productData} />
             <form
-                className="flex flex-col w-100 rounded-lg bg-gray-100 dark:bg-black shadow-xl p-8 border border-gray-900 gap-10"
+                className="flex flex-col w-100 rounded-lg bg-gray-100 dark:bg-black shadow-xl p-8 border border-gray-900 gap-10 select-none"
                 onSubmit={handleSubmit}
+                onMouseDown={(e) => e.stopPropagation()}
             >
                 <h2 className="text-2xl font-semibold">Sell Product</h2>
 
