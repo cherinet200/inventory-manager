@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useAuth } from "../contexts/auth";
 import { useEffect, useState } from "react";
 import { Td, Th } from "../components/table";
 import { useProduct } from "../contexts/products";
@@ -20,13 +19,6 @@ export const Route = createFileRoute("/_auth/inventory")({
     component: Inventory,
 });
 
-interface Sale {
-    productId: 60;
-    quantity: 1;
-    price: 125;
-    total: 500;
-}
-
 type ContextMenu = {
     x: number;
     y: number;
@@ -39,11 +31,11 @@ function Inventory() {
         products,
         fetchProduct,
         deleteProduct,
-        hasPreviousPage,
-        hasNextPage,
         setFormVisibility,
         setEditFormVisibility,
         setSalesFormVisibility,
+        pagination,
+        searchedPage,
     } = useProduct();
     const [contextMenu, setContextMenu] = useState<ContextMenu | null>(null);
     const ProductsId: number[] = [];
@@ -198,16 +190,18 @@ function Inventory() {
                             No products found.
                         </div>
                     </div>
-                    <button
-                        onClick={() => setFormVisibility("flex")}
-                        className="w-full p-2.5 rounded-md bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-800 dark:hover:text-gray-200 hover:cursor-pointer"
-                    >
-                        Create New Product
-                    </button>
+                    {!searchedPage && (
+                        <button
+                            onClick={() => setFormVisibility("flex")}
+                            className="w-full p-2.5 rounded-md bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-800 dark:hover:text-gray-200 hover:cursor-pointer"
+                        >
+                            Create New Product
+                        </button>
+                    )}
                 </div>
             )}
             {!isLoading && products.length > 0 && (
-                <div className="flex flex-col">
+                <div className="flex flex-col overflow-x-auto">
                     <div className="flex justify-between items-center mb-4 py-5 px-5">
                         <h2 className="text-left text-2xl text-gray-700 dark:text-gray-300">
                             Products
@@ -338,35 +332,49 @@ function Inventory() {
                         </tbody>
                         <tfoot
                             className={
-                                !hasPreviousPage && !hasNextPage ? "hidden" : ""
+                                pagination &&
+                                !pagination.hasPreviousPage &&
+                                !pagination.hasNextPage
+                                    ? "hidden"
+                                    : ""
                             }
                         >
                             <tr>
                                 <Td colSpan={7}>
                                     <div className="flex items-center justify-between mt-4`">
                                         <button
-                                            className={`border px-5 py-2 rounded-lg ${!hasPreviousPage && "text-gray-600"}`}
+                                            className={`border px-5 py-2 rounded-lg ${pagination && !pagination.hasPreviousPage && "text-gray-600"}`}
                                             onClick={async () => {
-                                                await fetchProduct(
-                                                    undefined,
-                                                    true,
-                                                    "backward",
-                                                );
+                                                pagination &&
+                                                    (await fetchProduct(
+                                                        undefined,
+                                                        pagination.page - 1,
+                                                    ));
+                                                setSelected([]);
                                             }}
-                                            disabled={!hasPreviousPage}
+                                            disabled={
+                                                pagination
+                                                    ? !pagination.hasPreviousPage
+                                                    : true
+                                            }
                                         >
                                             Previous
                                         </button>
                                         <button
-                                            className={`border px-5 py-2 rounded-lg ${!hasNextPage && "text-gray-600"}`}
+                                            className={`border px-5 py-2 rounded-lg ${pagination && !pagination.hasNextPage && "text-gray-600"}`}
                                             onClick={async () => {
-                                                await fetchProduct(
-                                                    undefined,
-                                                    true,
-                                                );
+                                                pagination &&
+                                                    (await fetchProduct(
+                                                        undefined,
+                                                        pagination.page + 1,
+                                                    ));
                                                 setSelected([]);
                                             }}
-                                            disabled={!hasNextPage}
+                                            disabled={
+                                                pagination
+                                                    ? !pagination.hasNextPage
+                                                    : true
+                                            }
                                         >
                                             Next
                                         </button>
