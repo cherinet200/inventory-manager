@@ -11,6 +11,7 @@ interface SortQuery {
     minquantity?: number;
     maxquantity?: number;
     limit?: number;
+    page?: number;
     cursor?: number;
     direction?: "forward" | "backward";
 }
@@ -31,69 +32,73 @@ export const getProducts = async (
         maxprice = undefined,
         minquantity = undefined,
         maxquantity = undefined,
-        limit = 5,
-        cursor = undefined,
-        direction = "forward",
     } = { ...req.query };
+    const limit = Math.min(Number(req.query.limit) || 10, MAX_LIMIT);
+    const page = Math.max(Number(req.query.page) || 1, 1);
+    const skip = (page - 1) * limit;
 
     if (!ALLOWED_SORT_FIELDS.includes(sortBy)) sortBy = "id";
     if (order !== "asc" && order !== "desc") order = "asc";
-    if (limit > MAX_LIMIT) limit = 30;
 
     try {
         const where: any = {
             userId: req.user!.id,
             name: { contains: search, mode: "insensitive" },
-            category: category,
+            category: category !== undefined ? category : undefined,
             deletedAt: null,
         };
 
-        if (minprice || maxprice) {
+        if (minprice !== undefined || maxprice !== undefined) {
             where.sellingprice = {};
 
-            minprice && (where.sellingprice.gte = Number(minprice));
-            maxprice && (where.sellingprice.lte = Number(maxprice));
+            minprice !== undefined &&
+                (where.sellingprice.gte = Number(minprice));
+            maxprice !== undefined &&
+                (where.sellingprice.lte = Number(maxprice));
         }
 
-        if (minquantity || maxquantity) {
+        if (minquantity !== undefined || maxquantity !== undefined) {
             where.quantity = {};
 
-            minquantity && (where.quantity.gte = Number(minquantity));
-            maxquantity && (where.quantity.lte = Number(maxquantity));
+            minquantity !== undefined &&
+                (where.quantity.gte = Number(minquantity));
+            maxquantity !== undefined &&
+                (where.quantity.lte = Number(maxquantity));
         }
 
-        const isBackward = direction === "backward";
+        const [products, total] = await Promise.all([
+            prisma.product.findMany({
+                where,
+                orderBy: [
+                    {
+                        [sortBy]: order,
+                    },
+                    {
+                        id: order,
+                    },
+                ],
+                skip,
+                take: limit,
+            }),
 
-        const products = await prisma.product.findMany({
-            where,
-            orderBy: [
-                {
-                    [sortBy]: order,
-                },
-                {
-                    id: order,
-                },
-            ],
-            take: isBackward ? -(Number(limit) + 1) : Number(limit) + 1,
-            cursor: cursor ? { id: Number(cursor) } : undefined,
-            skip: cursor ? 1 : 0,
-        });
+            prisma.product.count({ where }),
+        ]);
 
-        let hasNextPage = false;
-        let hasPreviousPage = false;
+        const totalPages = Math.ceil(total / limit);
+        const hasPreviousPage = page > 1;
+        const hasNextPage = page < totalPages;
 
-        if (direction !== "backward") {
-            hasNextPage = products.length > Number(limit);
-            if (hasNextPage) products.pop();
-        }
-
-        const nextCursor = hasNextPage ? products[Number(limit) - 1].id : null;
         res.status(200).json({
             success: true,
             products,
-            hasPreviousPage,
-            hasNextPage,
-            nextCursor,
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages,
+                hasPreviousPage,
+                hasNextPage,
+            },
         });
     } catch (err) {
         res.status(400).json({ message: "Couldn't get products", err });
