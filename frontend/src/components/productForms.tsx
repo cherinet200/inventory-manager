@@ -13,11 +13,11 @@ interface Field {
 interface ProductForm {
     type: string;
     formData: FormData;
-    setFormData: React.Dispatch<React.SetStateAction<FormData>>;
-    defaultFormData: FormData;
-    handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    handleSubmit: (e: React.ChangeEvent<HTMLFormElement>) => void;
-    setVisibility: (to: "flex" | "hidden") => void;
+    setFormData?: React.Dispatch<React.SetStateAction<FormData>>;
+    defaultFormData?: FormData;
+    handleChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    handleSubmit?: (e: React.ChangeEvent<HTMLFormElement>) => void;
+    setVisibility?: (to: "flex" | "hidden") => void;
 }
 
 interface EditProduct {
@@ -120,7 +120,9 @@ export function CreateProduct() {
     return (
         <div
             className={`fixed inset-0 bg-black/55 ${formOpen} items-center justify-center z-50`}
-            onMouseDown={() => setFormVisibility("hidden")}
+            onMouseDown={() => {
+                setFormVisibility("hidden");
+            }}
         >
             <ProductForm
                 type="Add Product"
@@ -172,7 +174,10 @@ export function EditProduct({
     return (
         <div
             className={`fixed inset-0 bg-black/55 ${editFormOpen} items-center justify-center z-50`}
-            onMouseDown={() => setEditFormVisibility("hidden")}
+            onMouseDown={() => {
+                setSelected([]);
+                setEditFormVisibility("hidden");
+            }}
         >
             <ProductForm
                 type="Edit Product"
@@ -187,7 +192,7 @@ export function EditProduct({
     );
 }
 
-const ProductForm = ({
+export const ProductForm = ({
     type,
     formData,
     setFormData,
@@ -196,6 +201,8 @@ const ProductForm = ({
     defaultFormData,
     setVisibility,
 }: ProductForm) => {
+    const readOnly = type === "Product To Be Sold" ? true : false;
+
     return (
         <>
             <form
@@ -226,17 +233,25 @@ const ProductForm = ({
                                 }
                                 onChange={handleChange}
                                 placeholder={field.placeholder}
-                                className="w-full p-2.5 border border-gray-600 rounded-lg text-base text-gray-900 dark:text-gray-300 outline-none focus:ring-2 focus:ring-gray-400"
+                                className={`w-full p-2.5 border border-gray-600 rounded-lg text-base text-gray-900 dark:text-gray-300 outline-none ${readOnly ? "" : "focus:ring-2 focus:ring-gray-500"}`}
                                 required
+                                readOnly={readOnly}
                             />
                         </Fragment>
                     ))}
                 </div>
-                <div className="flex justify-end gap-4">
+                <div
+                    className={
+                        type === "Product To Be Sold"
+                            ? "hidden"
+                            : "flex justify-end gap-4"
+                    }
+                >
                     <button
                         onClick={() => {
-                            setVisibility("hidden");
-                            setFormData(defaultFormData);
+                            if (setVisibility) setVisibility("hidden");
+                            if (setFormData && defaultFormData)
+                                setFormData(defaultFormData);
                         }}
                         className="px-5 py-2 border border-gray-600 rounded-md hover:border-gray-700 hover:text-gray-400 hover:cursor-pointer"
                         type="button"
