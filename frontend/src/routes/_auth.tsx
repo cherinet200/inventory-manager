@@ -29,12 +29,12 @@ function RouteComponent() {
         select: (state) => state.location.pathname,
     });
     return (
-        <div className="grid lg:grid-cols-[1fr_5fr] gap-0.5 bg-gray-100 dark:bg-gray-900">
+        <div className="grid lg:grid-cols-[1fr_5fr] gap-0.5 bg-gray-100 dark:bg-gray-900 selection:bg-blue-700/80 dark:selection:bg-blue-800/60 selection:text-white">
             <CreateProduct />
             <div className="hidden lg:flex bg-white dark:bg-gray-950 rounded-md shadow-sm">
                 <Sidebar currentPath={pathname} />
             </div>
-            <div className="h-screen">
+            <div className="h-screen overflow-auto">
                 <Navbar />
                 <Outlet />
             </div>
