@@ -12,6 +12,12 @@ interface Field {
 
 interface ProductForm {
     type: string;
+    style?: {
+        bg: string;
+        titleColor: string;
+        labelColor: string;
+        inputColor: string;
+    };
     formData: FormData;
     setFormData?: React.Dispatch<React.SetStateAction<FormData>>;
     defaultFormData?: FormData;
@@ -194,6 +200,7 @@ export function EditProduct({
 
 export const ProductForm = ({
     type,
+    style,
     formData,
     setFormData,
     handleChange,
@@ -206,18 +213,22 @@ export const ProductForm = ({
     return (
         <>
             <form
-                className="flex flex-col w-165 rounded-lg bg-gray-100 dark:bg-black shadow-xl p-8 border border-gray-900 gap-8 select-none"
+                className={`flex flex-col w-165 rounded-lg ${style ? style.bg : "bg-gray-100 dark:bg-black"} shadow-xl p-8 border border-gray-900 gap-8 select-none`}
                 onSubmit={handleSubmit}
                 onMouseDown={(e) => e.stopPropagation()}
             >
-                <h2 className="text-2xl font-semibold">{type}</h2>
+                <h2
+                    className={`text-2xl font-semibold ${style ? style.titleColor : ""}`}
+                >
+                    {type}
+                </h2>
 
                 <div className="grid grid-cols-[150px_1fr] gap-4 items-center">
                     {fields.map((field) => (
                         <Fragment key={field.name}>
                             <label
                                 htmlFor={field.name}
-                                className="self-center font-medium text-gray-600 dark:text-gray-300"
+                                className={`self-center font-medium ${style ? style.labelColor : "text-gray-600"} dark:text-gray-300`}
                             >
                                 {field.label}
                             </label>
@@ -233,7 +244,7 @@ export const ProductForm = ({
                                 }
                                 onChange={handleChange}
                                 placeholder={field.placeholder}
-                                className={`w-full p-2.5 border border-gray-600 rounded-lg text-base text-gray-900 dark:text-gray-300 outline-none ${readOnly ? "" : "focus:ring-2 focus:ring-gray-500"}`}
+                                className={`w-full p-2.5 border border-gray-600 rounded-lg text-base ${style ? style.inputColor : "text-gray-900 dark:text-gray-300"} outline-none ${readOnly ? "" : "focus:ring-2 focus:ring-gray-500"}`}
                                 required
                                 readOnly={readOnly}
                             />
