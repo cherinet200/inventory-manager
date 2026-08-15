@@ -1,7 +1,12 @@
 import bcrypt from "bcrypt";
 import prisma from "../db.ts";
 import type { Request, Response } from "express";
-import { checkPassword, createJwt, hashPassword } from "../module/auth.ts";
+import {
+    checkPassword,
+    createJwt,
+    deleteRefreshToken,
+    hashPassword,
+} from "../module/auth.ts";
 
 export const signUp = async (req: Request, res: Response) => {
     const user = await prisma.user.findUnique({
@@ -73,4 +78,22 @@ export const signIn = async (req: Request, res: Response) => {
         .json({
             success: true,
         });
+};
+
+export const logOut = async (req: Request, res: Response) => {
+    await deleteRefreshToken(req.user!.id);
+
+    res.clearCookie("user")
+        .clearCookie("accessToken", {
+            httpOnly: true,
+            secure: true,
+            sameSite: "strict",
+        })
+        .clearCookie("refreshToken", {
+            httpOnly: true,
+            secure: true,
+            sameSite: "strict",
+        });
+
+    res.sendStatus(204);
 };
