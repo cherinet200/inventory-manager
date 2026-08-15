@@ -32,3 +32,20 @@ export interface SalesData {
     price: number;
     total: number;
 }
+
+export interface SalesDatas {
+    id: number;
+    productId: number;
+    quantity: number;
+    price: number;
+    total: number;
+}
+
+export interface Pagination {
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+    limit: number;
+    page: number;
+    total: number;
+    totalPages: number;
+}
