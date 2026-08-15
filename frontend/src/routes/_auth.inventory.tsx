@@ -100,7 +100,7 @@ function Inventory() {
         const product = products.find((product) => product.id === selected[0]);
         if (!product) return defaultFormData;
         const { id, name, expirydate, ...rest } = product;
-        // setSelected([]);
+
         return {
             ...rest,
             productname: name,
@@ -120,6 +120,7 @@ function Inventory() {
             {selected.length === 1 && (
                 <SellProduct
                     productId={selected[0]}
+                    productData={renameKeys()}
                     setSelected={setSelected}
                 />
             )}
