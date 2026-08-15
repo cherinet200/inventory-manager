@@ -120,6 +120,7 @@ export function CreateProduct() {
     return (
         <div
             className={`fixed inset-0 bg-black/55 ${formOpen} items-center justify-center z-50`}
+            onMouseDown={() => setFormVisibility("hidden")}
         >
             <ProductForm
                 type="Add Product"
@@ -171,6 +172,7 @@ export function EditProduct({
     return (
         <div
             className={`fixed inset-0 bg-black/55 ${editFormOpen} items-center justify-center z-50`}
+            onMouseDown={() => setEditFormVisibility("hidden")}
         >
             <ProductForm
                 type="Edit Product"
@@ -197,8 +199,9 @@ const ProductForm = ({
     return (
         <>
             <form
-                className="flex flex-col w-165 rounded-lg bg-gray-100 dark:bg-black shadow-xl p-8 border border-gray-900 gap-8"
+                className="flex flex-col w-165 rounded-lg bg-gray-100 dark:bg-black shadow-xl p-8 border border-gray-900 gap-8 select-none"
                 onSubmit={handleSubmit}
+                onMouseDown={(e) => e.stopPropagation()}
             >
                 <h2 className="text-2xl font-semibold">{type}</h2>
 
