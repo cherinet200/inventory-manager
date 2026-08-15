@@ -85,14 +85,24 @@ const generateToken = (payload: object, expiry: SignOptions["expiresIn"]) => {
 };
 
 const saveRefreshToken = async (token: string, id: string) => {
+    await prisma.$transaction([
+        prisma.refreshToken.deleteMany({
+            where: {
+                userId: id,
+            },
+        }),
+        prisma.refreshToken.create({
+            data: {
+                token: token,
+                userId: id,
+            },
+        }),
+    ]);
+};
+
+export const deleteRefreshToken = async (id: string) => {
     await prisma.refreshToken.deleteMany({
         where: {
-            userId: id,
-        },
-    });
-    await prisma.refreshToken.create({
-        data: {
-            token: token,
             userId: id,
         },
     });
