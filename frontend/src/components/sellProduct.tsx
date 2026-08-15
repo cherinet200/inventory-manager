@@ -19,6 +19,7 @@ interface SellProduct {
 
 function SellProduct({ productId, productData, setSelected }: SellProduct) {
     const { sellProduct, salesFormOpen, setSalesFormVisibility } = useProduct();
+    const [message, setMessage] = useState<string | null>(null);
 
     const defaultFormData: SalesData = {
         productId: productId,
@@ -66,10 +67,16 @@ function SellProduct({ productId, productData, setSelected }: SellProduct) {
     const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        sellProduct(formData);
-        setFormData(defaultFormData);
-        setSelected([]);
-        setSalesFormVisibility("hidden");
+        const message = await sellProduct(formData);
+
+        if (message !== "Product sold successfully!") {
+            setFormData(defaultFormData);
+            setSelected([]);
+            setSalesFormVisibility("hidden");
+            setMessage(message);
+        } else {
+            setMessage(message);
+        }
     };
 
     const style = {
@@ -87,6 +94,11 @@ function SellProduct({ productId, productData, setSelected }: SellProduct) {
                 setSalesFormVisibility("hidden");
             }}
         >
+            {message && (
+                <div className="fixed top-4 left-1/2 -translate-x-1/2 rounded text-red-600 px-8 py-4 shadow-lg border border-red-700 z-50">
+                    {message}
+                </div>
+            )}
             <ProductForm
                 type={"Product To Be Sold"}
                 formData={productData}

@@ -2,6 +2,7 @@ import { createContext, useContext, useState } from "react";
 import type { Pagination, Product, SalesData } from "../types/types";
 import { FormData } from "../types/types";
 import { useAuth } from "./auth";
+import { useSales } from "./sales";
 
 interface QueryType {
     query?: string | undefined;
@@ -15,7 +16,7 @@ interface ProductContextType {
     createProduct: (formData: FormData) => void;
     editProduct: (formData: FormData, productId: number) => void;
     deleteProduct: (productIds: number[]) => void;
-    sellProduct: (salesData: SalesData) => void;
+    sellProduct: (salesData: SalesData) => Promise<string | null>;
     formOpen: Visibility;
     editFormOpen: Visibility;
     salesFormOpen: Visibility;
@@ -37,6 +38,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     const [salesFormOpen, setSalesFormOpen] = useState<Visibility>("hidden");
     const [searchedPage, setSearchedPage] = useState(false);
     const [pagination, setPagination] = useState<Pagination | null>(null);
+    const [message, setMessage] = useState<string | null>(null);
 
     const fetchProduct = async ({ query }: QueryType = {}, page?: number) => {
         const fetchProducts = async () => {
@@ -73,6 +75,9 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         const createProducts = async () => {
             return await fetch("/api/createProduct", {
                 method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
                 credentials: "include",
                 body: JSON.stringify({
                     ...formData,
@@ -155,31 +160,46 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     };
 
     const sellProduct = async (salesData: SalesData) => {
-        const sellProducts = async () => {
-            return await fetch("/api/sellProduct", {
-                method: "POST",
-                credentials: "include",
-                body: JSON.stringify({
-                    ...salesData,
-                }),
-            });
-        };
-        const res = await sellProducts();
-        if (res.status === 200) await fetchProduct(undefined, pagination?.page);
-        else if (res.status === 401) {
-            const refreshRes = await fetch("/auth/token", {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
-            if (refreshRes.status === 200) {
-                await sellProducts();
+        try {
+            const sellProducts = async () => {
+                return await fetch("/api/sellProduct", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        ...salesData,
+                    }),
+                });
+            };
+            const res = await sellProducts();
+
+            if (res.status === 200) {
+                setMessage(null);
                 await fetchProduct(undefined, pagination?.page);
-            } else if (refreshRes.status === 401) {
-                logout();
+            } else if (res.status === 400) {
+                const data = await res.json();
+                setMessage(data.message);
+            } else if (res.status === 401) {
+                const refreshRes = await fetch("/auth/token", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+                if (refreshRes.status === 200) {
+                    await sellProducts();
+                    setMessage(null);
+                    await fetchProduct(undefined, pagination?.page);
+                } else if (refreshRes.status === 401) {
+                    logout();
+                }
             }
+        } catch (err) {
+        } finally {
+            return message;
         }
     };
 
