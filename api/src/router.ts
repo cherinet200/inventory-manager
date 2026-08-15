@@ -7,6 +7,7 @@ import {
 } from "./handler/products.ts";
 import { deleteSales, getSales, sellProduct } from "./handler/sales.ts";
 import { dashboard } from "./handler/dashboard.ts";
+import { logOut } from "./handler/users.ts";
 
 const router = Router();
 
@@ -17,6 +18,8 @@ router.post("/sellProduct", sellProduct);
 router.get("/sales", getSales);
 router.delete("/deleteSales", deleteSales);
 router.delete("/deleteProduct", deleteProduct);
+
+router.post("/logout", logOut);
 
 router.all("/*splat", (req, res) => {
     res.status(404).json({ message: "Route not found!" });
