@@ -1,7 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import React, { useState } from "react";
 import Logo from "../assets/inventory.png";
-import { useAuth } from "../contexts/auth";
 
 export const Route = createFileRoute("/signin")({
     component: Signin,
@@ -14,8 +13,6 @@ function Signin() {
     });
     const [showMessage, setShowMessage] = useState(false);
     const [showWarning, setShowWarning] = useState(false);
-    const navigate = useNavigate();
-    const { login } = useAuth();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setShowWarning(false);
@@ -47,12 +44,7 @@ function Signin() {
         if (!response.success) setShowWarning(true);
         if (response.success) {
             setShowMessage(true);
-
-            login(response.user, response.accessToken);
-
-            setTimeout(() => {
-                navigate({ to: "/dashboard" });
-            }, 1000);
+            window.location.href = "/dashboard";
         }
     };
 
