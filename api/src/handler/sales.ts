@@ -68,7 +68,13 @@ export const getSales = async (req: Request, res: Response) => {
                 take: limit,
             }),
 
-            prisma.sale.count(),
+            prisma.sale.count({
+                where: {
+                    product: {
+                        userId: req.user!.id,
+                    },
+                },
+            }),
         ]);
 
         const totalPages = Math.ceil(total / limit);
