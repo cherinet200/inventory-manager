@@ -33,38 +33,44 @@ export const signUp = async (req: Request, res: Response) => {
 };
 
 export const signIn = async (req: Request, res: Response) => {
-    const user = await prisma.user.findUnique({
+    const dbUser = await prisma.user.findUnique({
         where: {
             email: req.body.email,
         },
     });
 
     const DUMMY_HASH = await bcrypt.hash(process.env.DUMMY_PASSWORD!, 12);
-    const hash = user?.password ?? DUMMY_HASH;
+    const hash = dbUser?.password ?? DUMMY_HASH;
 
     const correctPassword = await checkPassword(req.body.password, hash);
 
-    if (!user || !correctPassword) {
+    if (!dbUser || !correctPassword) {
+        console.log("dbUser", dbUser);
+        console.log("correctPassword", correctPassword);
         return res
             .status(401)
             .json({ success: false, message: "Invalid credentials!" });
     }
 
-    const token = createJwt(user);
+    const token = createJwt(dbUser);
 
-    return res
-        .cookie("refresh_token", token.refreshToken, {
+    res.cookie(
+        "user",
+        JSON.stringify({ name: dbUser.name, email: dbUser.email }),
+    )
+        .cookie("refreshToken", token.refreshToken, {
             httpOnly: true,
             secure: true,
             sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        })
+        .cookie("accessToken", token.accessToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "strict",
+            maxAge: 15 * 60 * 1000,
         })
         .json({
             success: true,
-            id: user.id,
-            user: {
-                email: user.email,
-                name: user.name,
-            },
-            accessToken: token.accessToken,
         });
 };
