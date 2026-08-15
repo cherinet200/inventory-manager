@@ -33,7 +33,7 @@ export const createJwt = (user: jwt) => {
 };
 
 export const tokenRefresher = async (req: Request, res: Response) => {
-    const token = req.body.token;
+    const token = req.cookies.refreshToken;
 
     if (!token)
         return res.status(401).json({ message: "Refresh token is missing!" });
@@ -62,15 +62,15 @@ export const tokenRefresher = async (req: Request, res: Response) => {
 
         return res
             .status(200)
-            .cookie("refToken", refreshToken, {
-                // httpOnly: true,
+            .cookie("refreshToken", refreshToken, {
+                httpOnly: true,
                 secure: true,
-                // sameSite: "lax",
+                sameSite: "strict",
             })
-            .cookie("token", accessToken, {
-                httpOnly: false,
+            .cookie("accessToken", accessToken, {
+                httpOnly: true,
                 secure: true,
-                sameSite: "none",
+                sameSite: "strict",
             })
             .json({ accessToken });
     } catch (err) {
@@ -103,15 +103,10 @@ export const Authentication = (
     res: Response,
     next: NextFunction,
 ) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader)
-        return res
-            .status(401)
-            .json({ message: "Authorization header is missing" });
-
-    const token = authHeader.split(" ")[1];
-    if (!token)
-        return res.status(401).json({ message: "Bearer token is missing" });
+    const token = req.cookies.accessToken;
+    if (!token) {
+        return res.status(401).json({ message: "Access token is missing" });
+    }
 
     try {
         const claims = jwt.verify(token, process.env.JWT_SECRET!, {
