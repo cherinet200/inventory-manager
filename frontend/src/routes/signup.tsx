@@ -31,8 +31,6 @@ function Signup() {
     const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        console.log("Form data:", formData);
-        console.log("Submitting form data:", JSON.stringify(formData));
         const res = await fetch("/auth/signup", {
             method: "POST",
             headers: {
