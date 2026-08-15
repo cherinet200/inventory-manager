@@ -1,11 +1,10 @@
-import { Search, Bell, Settings } from "lucide-react";
+import { Search, Bell, Settings, Menu } from "lucide-react";
 import { useState } from "react";
-import Cookies from "js-cookie";
-import { useProduct } from "../contexts/product";
+import { useProduct } from "../contexts/products";
 
 function Navbar() {
     const [query, setQuery] = useState("");
-    const { fetchProduct } = useProduct();
+    const { fetchProduct, setSearchedPage } = useProduct();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { value } = e.target as typeof e.target & {
@@ -16,7 +15,10 @@ function Navbar() {
     };
 
     return (
-        <div className="sticky top-0 flex gap-100 bg-white dark:bg-gray-950 rounded p-6">
+        <div className="sticky top-0 flex items-center justify-between gap-4 bg-white dark:bg-gray-950 rounded p-6">
+            <button className="hover:text-blue-600 dark:hover:text-blue-700 block lg:hidden">
+                <Menu size={40} />
+            </button>
             <div className="w-full relative">
                 <Search className="absolute top-2.5 left-2 text-gray-500 dark:text-gray-600" />
                 <input
@@ -28,12 +30,14 @@ function Navbar() {
                     value={query}
                     onChange={handleChange}
                     onKeyDown={(e) => {
-                        e.key === "Enter" &&
+                        if (e.key === "Enter") {
+                            setSearchedPage(true);
                             fetchProduct({ query: `&search=${query}` });
+                        }
                     }}
                 />
             </div>
-            <div className="ml-auto flex gap-4 items-center dark:text-gray-400">
+            <div className="flex gap-4 items-center dark:text-gray-400">
                 <Bell />
                 <Settings />
             </div>
