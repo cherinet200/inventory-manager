@@ -72,6 +72,13 @@ function SellProduct({ productId, productData, setSelected }: SellProduct) {
         setSalesFormVisibility("hidden");
     };
 
+    const style = {
+        bg: "bg-gray-100 dark:bg-black",
+        titleColor: "dark:text-gray-300",
+        labelColor: "dark:text-gray-500",
+        inputColor: "text-gray-200 dark:text-gray-400",
+    };
+
     return (
         <div
             className={`fixed inset-0 flex gap-30 bg-black/55 ${salesFormOpen} items-center justify-center z-50`}
@@ -80,7 +87,11 @@ function SellProduct({ productId, productData, setSelected }: SellProduct) {
                 setSalesFormVisibility("hidden");
             }}
         >
-            <ProductForm type={"Product To Be Sold"} formData={productData} />
+            <ProductForm
+                type={"Product To Be Sold"}
+                formData={productData}
+                style={style}
+            />
             <form
                 className="flex flex-col w-100 rounded-lg bg-gray-100 dark:bg-black shadow-xl p-8 border border-gray-900 gap-10 select-none"
                 onSubmit={handleSubmit}
