@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Td, Th } from "../components/table";
 import { useProduct } from "../contexts/products";
-import { FormData, Product } from "../types/types";
+import { FormData } from "../types/types";
 import SellProduct from "../components/sellProduct";
 import { EditProduct } from "../components/productForms";
 import {
@@ -27,6 +27,7 @@ type ContextMenu = {
 
 function Inventory() {
     const [isLoading, setIsLoading] = useState(true);
+    const contextMenuRef = useRef<HTMLDivElement>(null);
     const {
         products,
         fetchProduct,
@@ -56,6 +57,17 @@ function Inventory() {
     };
 
     useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (
+                contextMenuRef &&
+                !contextMenuRef.current?.contains(event.target as Node)
+            ) {
+                setContextMenu(null);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+
         async function fetchThem() {
             try {
                 await fetchProduct();
@@ -64,6 +76,10 @@ function Inventory() {
             }
         }
         fetchThem();
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
     }, []);
 
     const date = (date: string) => {
@@ -109,6 +125,7 @@ function Inventory() {
             )}
             {contextMenu && (
                 <div
+                    ref={contextMenuRef}
                     className="fixed z-30 w-32 rounded-md shadow-lg dark:bg-gray-800"
                     style={{
                         left: contextMenu.x,
