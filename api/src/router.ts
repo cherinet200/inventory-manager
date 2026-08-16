@@ -6,7 +6,6 @@ import {
     deleteProduct,
 } from "./handler/products.ts";
 import { deleteSales, getSales, sellProduct } from "./handler/sales.ts";
-import { dashboard } from "./handler/dashboard.ts";
 import { logOut } from "./handler/users.ts";
 
 const router = Router();
