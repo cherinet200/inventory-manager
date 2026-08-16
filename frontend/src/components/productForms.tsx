@@ -218,7 +218,7 @@ export const ProductForm = ({
                 onMouseDown={(e) => e.stopPropagation()}
             >
                 <h2
-                    className={`text-2xl font-semibold ${style ? style.titleColor : ""}`}
+                    className={`font-playfair uppercase tracking-wider text-blue-600 text-2xl font-bold ${style ? style.titleColor : ""}`}
                 >
                     {type}
                 </h2>

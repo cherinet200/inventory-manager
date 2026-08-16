@@ -50,7 +50,7 @@ function Sidebar({ currentPath }: SidebarProps) {
         <div className="flex flex-col w-full items-center mt-4 gap-10">
             <div className="flex items-center w-full px-9 py-4">
                 <img src={Logo} alt="Logo" width="70" height="79" />
-                <h2 className="text-2xl text-blue-500 dark:text-blue-600 font-semibold">
+                <h2 className="font-playfair text-2xl text-blue-500 dark:text-blue-600 font-bold">
                     INVENTORY
                 </h2>
             </div>

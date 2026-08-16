@@ -109,7 +109,9 @@ function SellProduct({ productId, productData, setSelected }: SellProduct) {
                 onSubmit={handleSubmit}
                 onMouseDown={(e) => e.stopPropagation()}
             >
-                <h2 className="text-2xl font-semibold">Sell Product</h2>
+                <h2 className="font-playfair uppercase tracking-wider text-blue-600 text-2xl font-bold">
+                    Sell Product
+                </h2>
 
                 <div className="grid grid-cols-[100px_1fr] gap-4 items-center">
                     {fields.map((field) => (
