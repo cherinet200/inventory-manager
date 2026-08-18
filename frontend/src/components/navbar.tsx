@@ -1,6 +1,7 @@
 import { Search, Bell, Settings, Menu } from "lucide-react";
 import { useState } from "react";
 import { useProduct } from "../contexts/products";
+import Logo from "../assets/inventory.png";
 
 function Navbar() {
     const [query, setQuery] = useState("");
@@ -40,6 +41,33 @@ function Navbar() {
             <div className="flex gap-4 items-center dark:text-gray-400">
                 <Bell />
                 <Settings />
+            </div>
+        </div>
+    );
+}
+
+export function IndexNavbar() {
+    return (
+        <div className="sticky top-0 flex items-center justify-between gap-4 bg-white dark:bg-gray-950 rounded p-6 select-none">
+            <div className="flex items-center gap-2">
+                <img src={Logo} alt="Brand" width={60} height={60} />
+                <div className="font-playfair text-3xl font-bold dark:text-blue-600 tracking-tight">
+                    INVENTORY MANAGER
+                </div>
+            </div>
+            <div className="flex gap-4 items-center">
+                <button
+                    className="hover:text-blue-600"
+                    onMouseDown={() => (window.location.href = "/signin")}
+                >
+                    Sign In
+                </button>
+                <button
+                    className="px-4 py-2 bg-blue-600 rounded-md hover:bg-blue-700"
+                    onMouseDown={() => (window.location.href = "/signup")}
+                >
+                    Sign Up
+                </button>
             </div>
         </div>
     );
