@@ -137,6 +137,9 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
             return await fetch("/api/deleteProduct/", {
                 method: "DELETE",
                 credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
                 body: JSON.stringify({ ids: productIds }),
             });
         };
