@@ -4,6 +4,9 @@ import {
     createProduct,
     editProduct,
     deleteProduct,
+    getLowStocks,
+    getProductSummary,
+    getTopSelling,
 } from "./handler/products.ts";
 import { deleteSales, getSales, sellProduct } from "./handler/sales.ts";
 import { logOut } from "./handler/users.ts";
@@ -11,6 +14,9 @@ import { logOut } from "./handler/users.ts";
 const router = Router();
 
 router.get("/getProducts", getProducts);
+router.get("/getLowStocks", getLowStocks);
+router.get("/getProductSummary", getProductSummary);
+router.get("/getTopSelling", getTopSelling);
 router.post("/createProduct", createProduct);
 router.put("/editProduct/:id", editProduct);
 router.post("/sellProduct", sellProduct);
