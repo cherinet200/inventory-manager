@@ -16,6 +16,20 @@ interface SortQuery {
     direction?: "forward" | "backward";
 }
 
+export interface Product {
+    id: number;
+    name: string;
+    category: string;
+    buyingprice: number;
+    sellingprice: number;
+    quantity: number;
+    unit: string;
+    expirydate: Date;
+    threshold: number;
+    deletedAt: Date | null;
+    userId: string;
+}
+
 const MAX_LIMIT = 30;
 const ALLOWED_SORT_FIELDS = ["id", "sellingprice", "quantity", "expirydate"];
 
@@ -232,3 +246,38 @@ export const editProduct = async (req: Request, res: Response) => {
         console.error(err);
     }
 };
+
+export const getLowStocks = async (req: Request, res: Response) => {
+    const products = await prisma.$queryRaw<Product[]>`
+  SELECT *
+  FROM "Product"
+  WHERE "quantity" <= "threshold"
+    AND "deletedAt" IS NULL
+    AND "userId" = ${req.user!.id}
+`;
+
+    return res.json(products);
+};
+
+export const getProductSummary = async (req: Request, res: Response) => {
+    const [products, categories] = await Promise.all([
+        prisma.product.count({
+            where: {
+                userId: req.user!.id,
+                deletedAt: null,
+            },
+        }),
+
+        prisma.product.groupBy({
+            by: ["category"],
+            where: {
+                userId: req.user!.id,
+                deletedAt: null,
+            },
+        }),
+    ]);
+
+    return res.json({ products, categories: categories.length });
+};
+
+export const getTopSelling = async (req: Request, res: Response) => {};
