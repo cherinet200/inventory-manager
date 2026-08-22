@@ -7,7 +7,8 @@ export const sellProduct = async (req: Request, res: Response) => {
         typeof req.body.productId !== "number" ||
         typeof req.body.quantity !== "number" ||
         typeof req.body.price !== "number" ||
-        typeof req.body.total !== "number"
+        typeof req.body.total !== "number" ||
+        typeof req.body.cost !== "number"
     ) {
         res.status(400).json({ message: "Invalid input!" });
     }
@@ -126,4 +127,37 @@ export const deleteSales = async (req: Request, res: Response) => {
             },
         },
     });
+};
+
+export const getSalesOverview = async (req: Request, res: Response) => {
+    const [sales, revenues] = await Promise.all([
+        prisma.sale.count({
+            where: {
+                product: {
+                    userId: req.user!.id,
+                },
+            },
+        }),
+
+        prisma.sale.aggregate({
+            where: {
+                product: {
+                    userId: req.user!.id,
+                },
+            },
+
+            _sum: {
+                quantity: true,
+                total: true,
+                cost: true,
+            },
+        }),
+    ]);
+
+    const revenue = revenues._sum.total ? revenues._sum.total : 0;
+    const cost = revenues._sum.cost ? revenues._sum.cost : 0;
+
+    const profit = revenue - cost;
+
+    return res.json({ sales, revenue, cost, profit });
 };
