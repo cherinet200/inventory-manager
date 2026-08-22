@@ -254,6 +254,8 @@ export const getLowStocks = async (req: Request, res: Response) => {
   WHERE "quantity" <= "threshold"
     AND "deletedAt" IS NULL
     AND "userId" = ${req.user!.id}
+  ORDER BY "quantity" ASC
+  LIMIT 3
 `;
 
     return res.json(products);
@@ -280,4 +282,62 @@ export const getProductSummary = async (req: Request, res: Response) => {
     return res.json({ products, categories: categories.length });
 };
 
-export const getTopSelling = async (req: Request, res: Response) => {};
+export const getTopSelling = async (req: Request, res: Response) => {
+    const topSelling = await prisma.sale.groupBy({
+        by: ["productId"],
+        where: {
+            product: {
+                userId: req.user!.id,
+            },
+        },
+        _sum: {
+            quantity: true,
+            total: true,
+        },
+        orderBy: [
+            {
+                _sum: {
+                    quantity: "desc",
+                },
+            },
+            {
+                productId: "asc",
+            },
+        ],
+        take: 3,
+    });
+
+    const productIds = topSelling.map((sale) => sale.productId);
+
+    const products = await prisma.product.findMany({
+        where: {
+            id: {
+                in: productIds,
+            },
+            userId: req.user!.id,
+        },
+        select: {
+            id: true,
+            name: true,
+            quantity: true,
+        },
+        take: 3,
+    });
+
+    const topSellingProducts = topSelling.map((sale) => {
+        const product = products.find(
+            (product) => product.id === sale.productId,
+        );
+
+        return {
+            name: product?.name,
+            sold: sale._sum.quantity,
+            remaining: product?.quantity,
+            price: sale._sum.total,
+        };
+    });
+
+    return res.json({
+        topSellingProducts,
+    });
+};
