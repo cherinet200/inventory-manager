@@ -1,7 +1,5 @@
 import { createContext, useContext, useState } from "react";
-import { useAuth } from "./auth";
 import { Pagination, SalesDatas } from "../types/types";
-import { useProduct } from "./products";
 
 interface SalesContextType {
     sales: SalesDatas[];
@@ -13,8 +11,6 @@ interface SalesContextType {
 const SalesContext = createContext<SalesContextType | null>(null);
 
 export function SalesProvider({ children }: { children: React.ReactNode }) {
-    const { logout } = useAuth();
-    const { fetchProduct } = useProduct();
     const [sales, setSales] = useState<SalesDatas[]>([]);
     const [pagination, setPagination] = useState<Pagination | null>(null);
 
@@ -34,23 +30,6 @@ export function SalesProvider({ children }: { children: React.ReactNode }) {
             if (res.status === 200) {
                 setSales(data.sales);
                 setPagination(data.pagination);
-            } else if (res.status === 401) {
-                const refreshResponse = await fetch("/auth/token", {
-                    method: "POST",
-                    credentials: "include",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                });
-
-                if (refreshResponse.status === 200) {
-                    const res = await response();
-                    const data = await res.json();
-                    setSales(data.sales);
-                    setPagination(data.pagination);
-                } else if (refreshResponse.status === 401) {
-                    logout();
-                }
             }
         } catch (error) {
             console.error("Error fetching sales data:", error);
@@ -61,6 +40,9 @@ export function SalesProvider({ children }: { children: React.ReactNode }) {
             return await fetch("/api/deleteSales", {
                 method: "DELETE",
                 credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
                 body: JSON.stringify({ ids: saleIds }),
             });
         };
@@ -68,22 +50,6 @@ export function SalesProvider({ children }: { children: React.ReactNode }) {
         const res = await deleteSales();
 
         if (res.status === 200) await fetchSales();
-        else if (res.status === 401) {
-            const refreshResponse = await fetch("/auth/token", {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
-            if (refreshResponse.status === 200) {
-                await deleteSales();
-                await fetchSales();
-                fetchProduct();
-            } else if (refreshResponse.status === 401) {
-                logout();
-            }
-        }
     };
 
     return (
