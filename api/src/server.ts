@@ -1,7 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import { signIn, signUp } from "./handler/users.ts";
-import { Authentication, tokenRefresher } from "./module/auth.ts";
+import { Authentication } from "./module/auth.ts";
 import router from "./router.ts";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -26,7 +26,6 @@ app.get("/", (req, res) => {
 });
 app.post("/signup", signUp);
 app.post("/signin", signIn);
-app.post("/token", tokenRefresher);
 
 app.use("/api", Authentication, router);
 
