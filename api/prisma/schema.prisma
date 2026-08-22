@@ -57,9 +57,10 @@ model Sale {
 }
 
 model RefreshToken {
-  id        Int      @id @default(autoincrement())
-  token     String   @unique
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        Int       @id @default(autoincrement())
+  token     String    @unique
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
+  revokedAt DateTime?
 }
