@@ -24,7 +24,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             credentials: "include",
         });
 
-        window.location.href = "/";
+        window.location.href = "/signin";
     }
 
     return (
