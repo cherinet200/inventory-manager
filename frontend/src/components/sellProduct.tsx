@@ -18,14 +18,15 @@ interface SellProduct {
 }
 
 function SellProduct({ productId, productData, setSelected }: SellProduct) {
-    const { sellProduct, salesFormOpen, setSalesFormVisibility } = useProduct();
-    const [message, setMessage] = useState<string | null>(null);
+    const { sellProduct, salesFormOpen, setSalesFormVisibility, message } =
+        useProduct();
 
     const defaultFormData: SalesData = {
         productId: productId,
         quantity: 0,
         price: 0,
         total: 0,
+        cost: 0,
     };
 
     const [formData, setFormData] = useState<SalesData>(defaultFormData);
@@ -62,21 +63,17 @@ function SellProduct({ productId, productData, setSelected }: SellProduct) {
                   ...prevData,
                   [name]: value,
               }));
+        name === "quantity" &&
+            setFormData((prevData) => ({
+                ...prevData,
+                cost: productData.buyingprice * Number(value),
+            }));
     };
 
     const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        const message = await sellProduct(formData);
-
-        if (message !== "Product sold successfully!") {
-            setFormData(defaultFormData);
-            setSelected([]);
-            setSalesFormVisibility("hidden");
-            setMessage(message);
-        } else {
-            setMessage(message);
-        }
+        await sellProduct(formData, setSelected, setFormData);
     };
 
     const style = {
@@ -95,8 +92,8 @@ function SellProduct({ productId, productData, setSelected }: SellProduct) {
             }}
         >
             {message && (
-                <div className="fixed top-4 left-1/2 -translate-x-1/2 rounded text-red-600 px-8 py-4 shadow-lg border border-red-700 z-50">
-                    {message}
+                <div className="fixed top-4 left-1/2 -translate-x-1/2 rounded-xl text-red-700 px-8 py-4 shadow-lg bg-red-700/15 z-50">
+                    Stock Insufficient!
                 </div>
             )}
             <ProductForm
