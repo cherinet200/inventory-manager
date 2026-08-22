@@ -1,8 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import type { Pagination, Product, SalesData } from "../types/types";
 import { FormData } from "../types/types";
-import { useAuth } from "./auth";
-import { useSales } from "./sales";
 
 interface QueryType {
     query?: string | undefined;
@@ -16,7 +14,11 @@ interface ProductContextType {
     createProduct: (formData: FormData) => void;
     editProduct: (formData: FormData, productId: number) => void;
     deleteProduct: (productIds: number[]) => void;
-    sellProduct: (salesData: SalesData) => Promise<string | null>;
+    sellProduct: (
+        salesData: SalesData,
+        setSelected: React.Dispatch<React.SetStateAction<number[]>>,
+        setFormData: React.Dispatch<React.SetStateAction<SalesData>>,
+    ) => Promise<string | null>;
     formOpen: Visibility;
     editFormOpen: Visibility;
     salesFormOpen: Visibility;
@@ -26,12 +28,12 @@ interface ProductContextType {
     setEditFormVisibility: (to: Visibility) => void;
     setSalesFormVisibility: (to: Visibility) => void;
     pagination: Pagination | null;
+    message: string | null;
 }
 
 const ProductContext = createContext<ProductContextType | null>(null);
 
 export function ProductProvider({ children }: { children: React.ReactNode }) {
-    const { logout } = useAuth();
     const [products, setProducts] = useState<Product[]>([]);
     const [formOpen, setFormOpen] = useState<Visibility>("hidden");
     const [editFormOpen, setEditFormOpen] = useState<Visibility>("hidden");
@@ -48,26 +50,12 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         };
         const res = await fetchProducts();
         const data = await res.json();
+        if (data.shouldRefresh) {
+            window.location.reload();
+        }
         if (res.status === 200) {
             setProducts(data.products);
             setPagination(data.pagination);
-        } else if (res.status === 401) {
-            const refreshRes = await fetch("/auth/token", {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
-
-            if (refreshRes.status === 200) {
-                const res = await fetchProducts();
-                const data = await res.json();
-                setProducts(data.products);
-                setPagination(data.pagination);
-            } else if (refreshRes.status === 401) {
-                logout();
-            }
         }
     };
 
@@ -86,21 +74,6 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         };
         const res = await createProducts();
         if (res.status === 201) await fetchProduct();
-        else if (res.status === 401) {
-            const refreshRes = await fetch("/auth/token", {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
-            if (refreshRes.status === 200) {
-                await createProducts();
-                await fetchProduct();
-            } else if (refreshRes.status === 401) {
-                logout();
-            }
-        }
     };
 
     const editProduct = async (formData: FormData, productId: number) => {
@@ -115,21 +88,6 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         };
         const res = await editProducts();
         if (res.status === 200) await fetchProduct(undefined, pagination?.page);
-        else if (res.status === 401) {
-            const refreshRes = await fetch("/auth/token", {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
-            if (refreshRes.status === 200) {
-                await editProducts();
-                await fetchProduct(undefined, pagination?.page);
-            } else if (refreshRes.status === 401) {
-                logout();
-            }
-        }
     };
 
     const deleteProduct = async (productIds: number[]) => {
@@ -145,24 +103,20 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         };
         const res = await deleteProducts();
         if (res.status === 200) await fetchProduct(undefined, pagination?.page);
-        else if (res.status === 401) {
-            const refreshRes = await fetch("/auth/token", {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
-            if (refreshRes.status === 200) {
-                await deleteProducts();
-                await fetchProduct(undefined, pagination?.page);
-            } else if (refreshRes.status === 401) {
-                logout();
-            }
-        }
     };
 
-    const sellProduct = async (salesData: SalesData) => {
+    const sellProduct = async (
+        salesData: SalesData,
+        setSelected: React.Dispatch<React.SetStateAction<number[]>>,
+        setFormData: React.Dispatch<React.SetStateAction<SalesData>>,
+    ) => {
+        const defaultFormData: SalesData = {
+            productId: 0,
+            quantity: 0,
+            price: 0,
+            total: 0,
+            cost: 0,
+        };
         try {
             const sellProducts = async () => {
                 return await fetch("/api/sellProduct", {
@@ -177,28 +131,18 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
                 });
             };
             const res = await sellProducts();
+            const data = await res.json();
 
             if (res.status === 200) {
-                setMessage(null);
                 await fetchProduct(undefined, pagination?.page);
+                setSelected([]);
+                setFormData(defaultFormData);
+                setSalesFormOpen("hidden");
+
+                setMessage("");
             } else if (res.status === 400) {
-                const data = await res.json();
+                setSalesFormOpen("flex");
                 setMessage(data.message);
-            } else if (res.status === 401) {
-                const refreshRes = await fetch("/auth/token", {
-                    method: "POST",
-                    credentials: "include",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                });
-                if (refreshRes.status === 200) {
-                    await sellProducts();
-                    setMessage(null);
-                    await fetchProduct(undefined, pagination?.page);
-                } else if (refreshRes.status === 401) {
-                    logout();
-                }
             }
         } catch (err) {
         } finally {
@@ -236,6 +180,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
                 setEditFormVisibility,
                 setSalesFormVisibility,
                 pagination,
+                message,
             }}
         >
             {children}
