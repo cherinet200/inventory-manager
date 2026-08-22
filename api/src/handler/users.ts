@@ -80,9 +80,7 @@ export const signIn = async (req: Request, res: Response) => {
         });
 };
 
-export const logOut = async (req: Request, res: Response) => {
-    await deleteRefreshToken(req.user!.id);
-
+export const clearAuthCookies = (res: Response) => {
     res.clearCookie("user")
         .clearCookie("accessToken", {
             httpOnly: true,
@@ -94,6 +92,11 @@ export const logOut = async (req: Request, res: Response) => {
             secure: true,
             sameSite: "strict",
         });
+    res.json({ shouldRefresh: true });
+};
 
-    res.sendStatus(204);
+export const logOut = async (req: Request, res: Response) => {
+    await deleteRefreshToken(req.user!.id);
+
+    return clearAuthCookies(res);
 };
