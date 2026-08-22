@@ -56,7 +56,6 @@ const handleTokenRefresh = async (
         });
 
         if (isValid && !isValid.revokedAt) {
-            console.log(isValid);
             const accessToken = generateToken({ id: user.id }, "15m");
             const refreshToken = generateToken(
                 { id: user.id, jti: randomUUID() },
