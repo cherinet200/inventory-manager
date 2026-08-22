@@ -31,6 +31,7 @@ export interface SalesData {
     quantity: number;
     price: number;
     total: number;
+    cost: number;
 }
 
 export interface SalesDatas {
