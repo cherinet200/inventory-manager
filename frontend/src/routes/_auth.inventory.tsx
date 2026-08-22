@@ -361,38 +361,36 @@ function Inventory() {
                                 <Td colSpan={7}>
                                     <div className="flex items-center justify-between mt-4`">
                                         <button
-                                            className={`border px-5 py-2 rounded-lg ${pagination && !pagination.hasPreviousPage && "text-gray-600"}`}
+                                            className={`border px-5 py-2 rounded-lg ${!pagination!.hasPreviousPage && "text-gray-600"}`}
                                             onClick={async () => {
-                                                pagination &&
-                                                    (await fetchProduct(
-                                                        undefined,
-                                                        pagination.page - 1,
-                                                    ));
+                                                await fetchProduct(
+                                                    undefined,
+                                                    pagination!.page - 1,
+                                                );
                                                 setSelected([]);
                                             }}
                                             disabled={
-                                                pagination
-                                                    ? !pagination.hasPreviousPage
-                                                    : true
+                                                !pagination!.hasPreviousPage
                                             }
                                         >
                                             Previous
                                         </button>
+                                        <div className="dark:text-gray-500">
+                                            Page {pagination && pagination.page}{" "}
+                                            of{" "}
+                                            {pagination &&
+                                                pagination.totalPages}
+                                        </div>
                                         <button
-                                            className={`border px-5 py-2 rounded-lg ${pagination && !pagination.hasNextPage && "text-gray-600"}`}
+                                            className={`border px-5 py-2 rounded-lg ${!pagination!.hasNextPage && "text-gray-600"}`}
                                             onClick={async () => {
-                                                pagination &&
-                                                    (await fetchProduct(
-                                                        undefined,
-                                                        pagination.page + 1,
-                                                    ));
+                                                await fetchProduct(
+                                                    undefined,
+                                                    pagination!.page + 1,
+                                                );
                                                 setSelected([]);
                                             }}
-                                            disabled={
-                                                pagination
-                                                    ? !pagination.hasNextPage
-                                                    : true
-                                            }
+                                            disabled={!pagination!.hasNextPage}
                                         >
                                             Next
                                         </button>
