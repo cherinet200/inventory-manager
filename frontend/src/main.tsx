@@ -8,14 +8,9 @@ import { useProduct, ProductProvider } from "./contexts/products";
 import { SalesProvider } from "./contexts/sales";
 
 function App() {
-    const { user, token, refToken } = useAuth();
+    const { user } = useAuth();
     const { products } = useProduct();
-    return (
-        <RouterProvider
-            router={router}
-            context={{ user, token, refToken, products }}
-        />
-    );
+    return <RouterProvider router={router} context={{ user, products }} />;
 }
 
 createRoot(document.getElementById("root")!).render(
