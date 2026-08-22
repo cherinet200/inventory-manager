@@ -27,6 +27,10 @@ export function SalesProvider({ children }: { children: React.ReactNode }) {
             const res = await response();
             const data = await res.json();
 
+            if (data.shouldRefresh) {
+                window.location.reload();
+            }
+
             if (res.status === 200) {
                 setSales(data.sales);
                 setPagination(data.pagination);
@@ -48,6 +52,11 @@ export function SalesProvider({ children }: { children: React.ReactNode }) {
         };
 
         const res = await deleteSales();
+        const data = await res.json();
+
+        if (data.shouldRefresh) {
+            window.location.reload();
+        }
 
         if (res.status === 200) await fetchSales();
     };

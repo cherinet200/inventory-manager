@@ -50,9 +50,11 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         };
         const res = await fetchProducts();
         const data = await res.json();
+
         if (data.shouldRefresh) {
             window.location.reload();
         }
+
         if (res.status === 200) {
             setProducts(data.products);
             setPagination(data.pagination);
@@ -73,6 +75,12 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
             });
         };
         const res = await createProducts();
+        const data = await res.json();
+
+        if (data.shouldRefresh) {
+            window.location.reload();
+        }
+
         if (res.status === 201) await fetchProduct();
     };
 
@@ -87,6 +95,12 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
             });
         };
         const res = await editProducts();
+        const data = await res.json();
+
+        if (data.shouldRefresh) {
+            window.location.reload();
+        }
+
         if (res.status === 200) await fetchProduct(undefined, pagination?.page);
     };
 
@@ -102,6 +116,12 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
             });
         };
         const res = await deleteProducts();
+        const data = await res.json();
+
+        if (data.shouldRefresh) {
+            window.location.reload();
+        }
+
         if (res.status === 200) await fetchProduct(undefined, pagination?.page);
     };
 
@@ -132,6 +152,10 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
             };
             const res = await sellProducts();
             const data = await res.json();
+
+            if (data.shouldRefresh) {
+                window.location.reload();
+            }
 
             if (res.status === 200) {
                 await fetchProduct(undefined, pagination?.page);
