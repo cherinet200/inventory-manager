@@ -233,7 +233,6 @@ function Inventory() {
                             </button>
                             <button
                                 onClick={() => {
-                                    console.log(selected);
                                     if (selected.length === 1)
                                         setEditFormVisibility("flex");
                                 }}
@@ -243,7 +242,6 @@ function Inventory() {
                             </button>
                             <button
                                 onClick={() => {
-                                    console.log(selected);
                                     deleteProduct(selected);
                                     setSelected([]);
                                 }}

@@ -121,7 +121,6 @@ export default function Dashboard() {
                     iconColor: "text-green-400",
                 },
             ];
-            console.log(overviewData);
 
             setSales(salesDetail);
         };
