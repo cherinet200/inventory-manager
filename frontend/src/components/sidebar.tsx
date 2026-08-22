@@ -46,6 +46,10 @@ function Sidebar({ currentPath }: SidebarProps) {
         },
     ];
 
+    const title = currentPath.split("/")[1];
+
+    document.title = title.charAt(0).toUpperCase() + title.slice(1);
+
     return (
         <div className="flex flex-col w-full items-center mt-4 gap-10">
             <div className="flex items-center w-full px-9 py-4">
@@ -73,11 +77,11 @@ function Sidebar({ currentPath }: SidebarProps) {
             <div className="flex flex-col mt-auto mb-0.5 py-2 text-center rounded-lg shadow-2xl border border-gray-100 dark:border-gray-900">
                 <div className="flex items-center justify-between px-4 gap-8">
                     <div className="flex items-center gap-4">
-                        <div className="flex items-center justify-center text-gray-300 bg-blue-600/80 h-13 w-13 rounded-[100%] font-semibold text-center">
+                        <div className="flex items-center justify-center text-gray-300 bg-blue-600/80 h-13 w-13 rounded-[100%] font-semibold text-center font-playfair">
                             CB
                         </div>
                         <div className="flex flex-col">
-                            <div className="text-lg font-semibold text-gray-400 leading-none">
+                            <div className="text-lg font-medium text-gray-400 leading-none">
                                 {name}
                             </div>
                             <div className="text-sm text-gray-500">{email}</div>
