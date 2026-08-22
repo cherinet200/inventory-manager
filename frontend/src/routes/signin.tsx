@@ -51,12 +51,12 @@ function Signin() {
     return (
         <div className="flex justify-center items-center h-screen gap-100 dark:bg-gray-950">
             {showMessage && (
-                <div className="fixed top-4 left-1/2 -translate-x-1/2 rounded text-green-600 px-8 py-4 shadow-lg border border-green-600">
+                <div className="fixed top-4 left-1/2 -translate-x-1/2 rounded text-green-600 px-8 py-4 shadow-lg bg-green-600/15">
                     Login successful! Redirecting to dashboard...
                 </div>
             )}
             {showWarning && (
-                <div className="fixed top-4 left-1/2 -translate-x-1/2 rounded text-red-600 px-8 py-4 shadow-lg border border-red-600">
+                <div className="fixed top-4 left-1/2 -translate-x-1/2 rounded text-red-600 px-8 py-4 shadow-lg bg-red-600/15">
                     Invalid credentials!
                 </div>
             )}
