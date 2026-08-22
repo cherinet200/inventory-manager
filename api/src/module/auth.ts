@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import type { JwtPayload, SignOptions } from "jsonwebtoken";
 import type { NextFunction, Request, Response } from "express";
 import { randomUUID } from "crypto";
+import { clearAuthCookies } from "../handler/users.ts";
 
 dotenv.config();
 
@@ -32,12 +33,16 @@ export const createJwt = (user: jwt) => {
     return { accessToken: accessToken, refreshToken: refreshToken };
 };
 
-export const tokenRefresher = async (req: Request, res: Response) => {
+const handleTokenRefresh = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) => {
     const token = req.cookies.refreshToken;
 
-    if (!token)
-        return res.status(401).json({ message: "Refresh token is missing!" });
-
+    if (!token) {
+        return clearAuthCookies(res);
+    }
     try {
         const user = jwt.verify(
             token,
@@ -50,31 +55,33 @@ export const tokenRefresher = async (req: Request, res: Response) => {
             },
         });
 
-        if (!isValid)
-            return res.status(401).json({ message: "Invalid token!" });
+        if (isValid && !isValid.revokedAt) {
+            console.log(isValid);
+            const accessToken = generateToken({ id: user.id }, "15m");
+            const refreshToken = generateToken(
+                { id: user.id, jti: randomUUID() },
+                "7d",
+            );
+            await saveRefreshToken(refreshToken, user.id, isValid?.id);
 
-        const accessToken = generateToken({ id: user.id }, "15m");
-        const refreshToken = generateToken(
-            { id: user.id, jti: randomUUID() },
-            "7d",
-        );
-        await saveRefreshToken(refreshToken, user.id);
-
-        return res
-            .status(200)
-            .cookie("refreshToken", refreshToken, {
+            res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
                 secure: true,
                 sameSite: "strict",
-            })
-            .cookie("accessToken", accessToken, {
+            }).cookie("accessToken", accessToken, {
                 httpOnly: true,
                 secure: true,
                 sameSite: "strict",
-            })
-            .json({ accessToken });
+            });
+
+            req.user = { id: user.id };
+
+            return next();
+        } else {
+            return res.json({ shouldRefresh: true });
+        }
     } catch (err) {
-        return res.status(401).json({ message: "Invalid token!", error: err });
+        return clearAuthCookies(res);
     }
 };
 
@@ -84,20 +91,32 @@ const generateToken = (payload: object, expiry: SignOptions["expiresIn"]) => {
         : jwt.sign(payload, process.env.REFRESH_SECRET!, { expiresIn: expiry });
 };
 
-const saveRefreshToken = async (token: string, id: string) => {
-    await prisma.$transaction([
-        prisma.refreshToken.deleteMany({
-            where: {
-                userId: id,
-            },
-        }),
-        prisma.refreshToken.create({
-            data: {
-                token: token,
-                userId: id,
-            },
-        }),
-    ]);
+const saveRefreshToken = async (token: string, id: string, stored?: number) => {
+    stored
+        ? await prisma.$transaction([
+              prisma.refreshToken.update({
+                  where: {
+                      id: stored,
+                  },
+                  data: {
+                      revokedAt: new Date(),
+                  },
+              }),
+              prisma.refreshToken.create({
+                  data: {
+                      token: token,
+                      userId: id,
+                      revokedAt: null,
+                  },
+              }),
+          ])
+        : await prisma.refreshToken.create({
+              data: {
+                  token: token,
+                  userId: id,
+                  revokedAt: null,
+              },
+          });
 };
 
 export const deleteRefreshToken = async (id: string) => {
@@ -114,9 +133,6 @@ export const Authentication = (
     next: NextFunction,
 ) => {
     const token = req.cookies.accessToken;
-    if (!token) {
-        return res.status(401).json({ message: "Access token is missing" });
-    }
 
     try {
         const claims = jwt.verify(token, process.env.JWT_SECRET!, {
@@ -126,6 +142,6 @@ export const Authentication = (
 
         next();
     } catch (err) {
-        res.status(401).json({ message: "Invalid or expired token!", err });
+        return handleTokenRefresh(req, res, next);
     }
 };
