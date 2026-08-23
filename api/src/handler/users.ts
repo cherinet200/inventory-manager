@@ -62,6 +62,9 @@ export const signIn = async (req: Request, res: Response) => {
     res.cookie(
         "user",
         JSON.stringify({ name: dbUser.name, email: dbUser.email }),
+        {
+            maxAge: 100 * 365.25 * 24 * 60 * 60 * 1000,
+        },
     )
         .cookie("refreshToken", token.refreshToken, {
             httpOnly: true,
@@ -81,7 +84,9 @@ export const signIn = async (req: Request, res: Response) => {
 };
 
 export const clearAuthCookies = (res: Response) => {
-    res.clearCookie("user")
+    res.clearCookie("user", {
+        maxAge: 100 * 365.25 * 24 * 60 * 60 * 1000,
+    })
         .clearCookie("accessToken", {
             httpOnly: true,
             secure: true,
