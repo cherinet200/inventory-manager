@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import React, { useState } from "react";
 import Logo from "../assets/inventory.png";
+import { Eye, EyeOff } from "lucide-react";
 
 export const Route = createFileRoute("/signin")({
     component: Signin,
@@ -13,7 +14,7 @@ function Signin() {
     });
     const [showMessage, setShowMessage] = useState(false);
     const [showWarning, setShowWarning] = useState(false);
-
+    const [showPassword, setShowPassword] = useState(false);
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setShowWarning(false);
         const { name, value } = e.target as typeof e.target & {
@@ -102,16 +103,24 @@ function Signin() {
                         >
                             Password
                         </label>
-                        <input
-                            type="password"
-                            name="password"
-                            id="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            placeholder="Enter your password"
-                            className="w-full p-2.5 border border-gray-200 dark:border-gray-600 rounded-md text-base"
-                            required
-                        />
+                        <div className="relative flex items-center cursor-pointer">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                name="password"
+                                id="password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                placeholder="Enter your password"
+                                className="w-full p-2.5 border border-gray-200 dark:border-gray-600 rounded-md text-base"
+                                required
+                            />
+                            <div
+                                className="absolute right-2 text-gray-600 dark:text-gray-400"
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {showPassword ? <EyeOff /> : <Eye />}
+                            </div>
+                        </div>
                     </div>
                     <a
                         href="/"

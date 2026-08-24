@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import brandLogo from "../assets/inventory.png";
 import { Link } from "@tanstack/react-router";
+import { Eye, EyeOff } from "lucide-react";
 
 export const Route = createFileRoute("/signup")({
     component: Signup,
@@ -10,6 +11,7 @@ export const Route = createFileRoute("/signup")({
 function Signup() {
     const [showMessage, setShowMessage] = useState(false);
     const [showWarning, setShowWarning] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -126,16 +128,24 @@ function Signup() {
                         >
                             Password*
                         </label>
-                        <input
-                            type="password"
-                            name="password"
-                            id="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            placeholder="Enter your password"
-                            className="w-full p-2.5 border border-gray-200 dark:border-gray-600 rounded-md text-base"
-                            required
-                        />
+                        <div className="relative flex items-center cursor-pointer">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                name="password"
+                                id="password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                placeholder="Enter your password"
+                                className="w-full p-2.5 border border-gray-200 dark:border-gray-600 rounded-md text-base"
+                                required
+                            />
+                            <div
+                                className="absolute right-2 text-gray-600 dark:text-gray-400"
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {showPassword ? <EyeOff /> : <Eye />}
+                            </div>
+                        </div>
                     </div>
                     <p className="text-gray-400 self-start">
                         Must be at least 8 characters.
