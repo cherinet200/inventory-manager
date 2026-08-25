@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Th, Td } from "../components/table";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSales } from "../contexts/sales";
 import {
     ListFilter,
@@ -25,6 +25,7 @@ function RouteComponent() {
     const { sales, fetchSales, deleteSales, pagination } = useSales();
     const [isLoading, setIsLoading] = useState(true);
     const [selected, setSelected] = useState<number[]>([]);
+    const contextMenuRef = useRef<HTMLDivElement>(null);
     const [contextMenu, setContextMenu] = useState<ContextMenu | null>(null);
 
     const SalesId: number[] = [];
@@ -44,6 +45,17 @@ function RouteComponent() {
     };
 
     useEffect(() => {
+        const clickOutside = (event: MouseEvent) => {
+            if (
+                contextMenuRef &&
+                !contextMenuRef.current?.contains(event.target as Node)
+            ) {
+                setContextMenu(null);
+            }
+        };
+
+        document.addEventListener("mousedown", clickOutside);
+
         const fetchThem = async () => {
             try {
                 fetchSales();
@@ -54,11 +66,16 @@ function RouteComponent() {
         };
 
         fetchThem();
+
+        return () => {
+            document.removeEventListener("mousedown", clickOutside);
+        };
     }, []);
     return (
         <div className="flex flex-col m-10 py-8 bg-white dark:bg-gray-950 rounded-md">
             {contextMenu && (
                 <div
+                    ref={contextMenuRef}
                     className="fixed z-30 w-32 rounded-md shadow-lg dark:bg-gray-800"
                     style={{
                         left: contextMenu.x,
