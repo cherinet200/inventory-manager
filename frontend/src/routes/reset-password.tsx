@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import brandLogo from "../assets/inventory.png";
 import { useState } from "react";
-import { EyeOff, Eye } from "lucide-react";
+import { EyeOff, Eye, Circle, Check } from "lucide-react";
 
 export const Route = createFileRoute("/reset-password")({
     validateSearch: (search: Record<string, unknown>) => ({
@@ -20,8 +20,9 @@ function RouteComponent() {
     const [warningStyle, setWarningStyle] = useState({
         length: "",
         match: "",
+        lmoving: false,
+        mmoving: false,
     });
-    const [reqMessage, setReqMessage] = useState<string | null>(null);
     const { token } = Route.useSearch();
     !token && (window.location.href = "/dashboard");
 
@@ -31,41 +32,54 @@ function RouteComponent() {
             value: string;
         };
 
+        // Length
         name === "password"
             ? value.length >= 8
                 ? setWarningStyle((prev) => ({
                       ...prev,
                       length: "text-green-500",
+                      lmoving: false,
                   }))
                 : setWarningStyle((prev) => ({
                       ...prev,
                       length: "text-gray-400",
+                      lmoving: false,
                   }))
             : undefined;
 
+        // Change the form data
         setFormData((prevData) => ({
             ...prevData,
             [name]: value,
         }));
 
+        // Match
         name === "password"
-            ? value === formData.cPassword
+            ? value === formData.cPassword &&
+              value.length > 0 &&
+              formData.cPassword.length > 0
                 ? setWarningStyle((prev) => ({
                       ...prev,
                       match: "text-green-500",
+                      mmoving: false,
                   }))
                 : setWarningStyle((prev) => ({
                       ...prev,
                       match: "text-gray-400",
+                      mmoving: false,
                   }))
-            : value === formData.password
+            : value === formData.password &&
+                value.length > 0 &&
+                formData.password.length > 0
               ? setWarningStyle((prev) => ({
                     ...prev,
                     match: "text-green-500",
+                    mmoving: false,
                 }))
               : setWarningStyle((prev) => ({
                     ...prev,
                     match: "text-gray-400",
+                    mmoving: false,
                 }));
     };
 
@@ -73,7 +87,7 @@ function RouteComponent() {
         e.preventDefault();
 
         const handleSend = async () => {
-            const res = await fetch("/auth/resetPassword", {
+            const res = await fetch("/auth/changePassword", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -89,17 +103,34 @@ function RouteComponent() {
             if (res.status === 400) {
                 setMessage(data.message);
             }
+
+            if (res.status === 200) window.location.href = "/signin";
         };
 
-        // formData.password.length >= 8
-        //     ? formData.password === formData.cPassword
-        //         ? handleSend()
-        //         : setReqMessage("Passwords must match.")
-        //     : setWarningStyle(length: "text-red-700");
+        formData.password.length >= 8
+            ? handleSend()
+            : setWarningStyle((prev) => ({
+                  ...prev,
+                  length: "text-red-600",
+                  lmoving: true,
+              }));
+
+        formData.password === formData.cPassword
+            ? handleSend()
+            : setWarningStyle((prev) => ({
+                  ...prev,
+                  match: "text-red-600",
+                  mmoving: true,
+              }));
     };
 
     return (
         <div className="flex h-screen justify-center items-center dark:bg-black">
+            {message && (
+                <div className="fixed top-4 left-1/2 -translate-x-1/2 rounded text-red-600 px-8 py-4 shadow-lg bg-red-600/15">
+                    {message}
+                </div>
+            )}
             <form
                 className="w-97.5 flex justify-center items-center flex-col gap-8"
                 onSubmit={handleSubmit}
@@ -160,20 +191,46 @@ function RouteComponent() {
                     </div>
                     <div className="flex flex-col self-start p-2 pb-0">
                         <div
-                            className={`text-gray-400 self-start flex items-center gap-1 ${warningStyle.length}`}
+                            className={`text-gray-400 self-start flex items-center gap-1 ${warningStyle.length} ${warningStyle.lmoving ? "animate-shake-right" : ""}`}
+                            onAnimationEnd={() =>
+                                setWarningStyle((prev) => ({
+                                    ...prev,
+                                    length: "text-gray-400",
+                                    lmoving: false,
+                                }))
+                            }
                         >
-                            <div
-                                className={`w-2 h-2 bg-black dark:bg-gray-400 rounded-[100%] ${warningStyle.length}`}
-                            ></div>
-                            Must be at least 8 characters.
+                            <div className="flex items-center justify-center gap-1">
+                                <div className="flex items-center justify-center w-2.5 h-2.5 rounded-full border">
+                                    {warningStyle.length ===
+                                        "text-green-500" && (
+                                        <Check className="w-3 h-3 stroke-3" />
+                                    )}
+                                </div>
+                                Must be at least 8 characters.
+                            </div>
                         </div>
                         <div
-                            className={`text-gray-400 self-start flex items-center gap-1 ${warningStyle.match}`}
+                            className={`text-gray-400 self-start flex items-center gap-1 ${warningStyle.match} ${warningStyle.mmoving ? "animate-shake-right" : ""}`}
+                            onAnimationEnd={() =>
+                                setWarningStyle((prev) => ({
+                                    ...prev,
+                                    match: "text-gray-400",
+                                    mmoving: false,
+                                }))
+                            }
                         >
-                            <div
-                                className={`w-2 h-2 bg-black dark:bg-gray-400 rounded-[100%] ${warningStyle.match}`}
-                            ></div>
-                            Passwords must match.
+                            <div className="flex items-center justify-center">
+                                <div className="flex items-center justify-center gap-1">
+                                    <div className="flex items-center justify-center w-2.5 h-2.5 rounded-full border">
+                                        {warningStyle.match ===
+                                            "text-green-500" && (
+                                            <Check className="w-3 h-3 stroke-3" />
+                                        )}
+                                    </div>
+                                    Passwords must match.
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
