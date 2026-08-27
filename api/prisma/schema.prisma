@@ -14,7 +14,7 @@ datasource db {
 }
 
 model User {
-  id        String   @id @unique @default(uuid())
+  id        String   @id @default(uuid())
   name      String
   email     String   @unique
   password  String
@@ -23,7 +23,8 @@ model User {
 
   products Product[]
 
-  refreshTokens RefreshToken[]
+  refreshTokens       RefreshToken[]
+  passwordResetTokens PasswordResetToken[]
 }
 
 model Product {
@@ -42,6 +43,8 @@ model Product {
   userId String
 
   sales Sale[]
+
+  @@index([userId, deletedAt])
 }
 
 model Sale {
@@ -54,6 +57,8 @@ model Sale {
 
   productId Int
   product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([productId])
 }
 
 model RefreshToken {
@@ -63,4 +68,21 @@ model RefreshToken {
   userId    String
   createdAt DateTime  @default(now())
   revokedAt DateTime?
+
+  @@index([userId])
+}
+
+model PasswordResetToken {
+  id        Int       @id @default(autoincrement())
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
 }
