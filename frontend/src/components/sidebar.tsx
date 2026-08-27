@@ -8,7 +8,7 @@ import {
     ChevronsUpDown,
 } from "lucide-react";
 import { useAuth } from "../contexts/auth";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type SidebarProps = {
     currentPath: string;
@@ -18,6 +18,7 @@ function Sidebar({ currentPath }: SidebarProps) {
     const [showUserActions, setShowUserActions] = useState<"block" | "hidden">(
         "hidden",
     );
+    const userActionsRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
     const { logout } = useAuth();
     const { user } = useAuth();
@@ -49,6 +50,23 @@ function Sidebar({ currentPath }: SidebarProps) {
     const title = currentPath.split("/")[1];
 
     document.title = title.charAt(0).toUpperCase() + title.slice(1);
+
+    useEffect(() => {
+        const clickOutside = (event: MouseEvent) => {
+            if (
+                userActionsRef &&
+                !userActionsRef.current?.contains(event.target as Node)
+            ) {
+                setShowUserActions("hidden");
+            }
+        };
+
+        document.addEventListener("mousedown", clickOutside);
+
+        return () => {
+            document.removeEventListener("mousedown", clickOutside);
+        };
+    }, [setShowUserActions]);
 
     return (
         <div className="flex flex-col w-full items-center mt-4 gap-10">
@@ -98,6 +116,7 @@ function Sidebar({ currentPath }: SidebarProps) {
                 </div>
 
                 <div
+                    ref={userActionsRef}
                     className={`fixed bg-black/60 text-gray-400 py-1 left-65 top-255 rounded-lg ${showUserActions}`}
                 >
                     <button
