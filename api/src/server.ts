@@ -5,6 +5,7 @@ import { Authentication } from "./module/auth.ts";
 import router from "./router.ts";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import { forgotPassword, changePassword } from "./handler/resetPassword.ts";
 
 dotenv.config();
 
@@ -26,6 +27,9 @@ app.get("/", (req, res) => {
 });
 app.post("/signup", signUp);
 app.post("/signin", signIn);
+
+app.post("/forgotPassword", forgotPassword);
+app.post("/changePassword", changePassword);
 
 app.use("/api", Authentication, router);
 

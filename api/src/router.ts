@@ -20,9 +20,10 @@ router.get("/getProducts", getProducts);
 router.post("/createProduct", createProduct);
 router.put("/editProduct/:id", editProduct);
 router.post("/sellProduct", sellProduct);
+router.delete("/deleteProduct", deleteProduct);
+
 router.get("/sales", getSales);
 router.delete("/deleteSales", deleteSales);
-router.delete("/deleteProduct", deleteProduct);
 
 router.get("/getLowStocks", getLowStocks);
 router.get("/getProductSummary", getProductSummary);
