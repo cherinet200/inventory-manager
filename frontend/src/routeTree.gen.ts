@@ -11,10 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/_auth'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SigninRouteImport } from './routes/signin'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as AuthInventoryRouteImport } from './routes/_auth.inventory'
+import { Route as AuthLowstockRouteImport } from './routes/_auth.lowstock'
 import { Route as AuthSalesRouteImport } from './routes/_auth.sales'
+import { Route as AuthTopsellingRouteImport } from './routes/_auth.topselling'
 import { Route as AuthDashboardIndexRouteImport } from './routes/_auth.dashboard.index'
 
 const IndexRoute = IndexRouteImport.update({
@@ -24,6 +27,11 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SigninRoute = SigninRouteImport.update({
@@ -41,9 +49,19 @@ const AuthInventoryRoute = AuthInventoryRouteImport.update({
   path: '/inventory',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthLowstockRoute = AuthLowstockRouteImport.update({
+  id: '/lowstock',
+  path: '/lowstock',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthSalesRoute = AuthSalesRouteImport.update({
   id: '/sales',
   path: '/sales',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthTopsellingRoute = AuthTopsellingRouteImport.update({
+  id: '/topselling',
+  path: '/topselling',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthDashboardIndexRoute = AuthDashboardIndexRouteImport.update({
@@ -54,50 +72,80 @@ const AuthDashboardIndexRoute = AuthDashboardIndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
   '/inventory': typeof AuthInventoryRoute
+  '/lowstock': typeof AuthLowstockRoute
   '/sales': typeof AuthSalesRoute
+  '/topselling': typeof AuthTopsellingRoute
   '/dashboard/': typeof AuthDashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
   '/inventory': typeof AuthInventoryRoute
+  '/lowstock': typeof AuthLowstockRoute
   '/sales': typeof AuthSalesRoute
+  '/topselling': typeof AuthTopsellingRoute
   '/dashboard': typeof AuthDashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_auth': typeof AuthRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
   '/_auth/inventory': typeof AuthInventoryRoute
+  '/_auth/lowstock': typeof AuthLowstockRoute
   '/_auth/sales': typeof AuthSalesRoute
+  '/_auth/topselling': typeof AuthTopsellingRoute
   '/_auth/dashboard/': typeof AuthDashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/signin' | '/signup' | '/inventory' | '/sales' | '/dashboard/'
+    | '/'
+    | '/reset-password'
+    | '/signin'
+    | '/signup'
+    | '/inventory'
+    | '/lowstock'
+    | '/sales'
+    | '/topselling'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/signin' | '/signup' | '/inventory' | '/sales' | '/dashboard'
+  to:
+    | '/'
+    | '/reset-password'
+    | '/signin'
+    | '/signup'
+    | '/inventory'
+    | '/lowstock'
+    | '/sales'
+    | '/topselling'
+    | '/dashboard'
   id:
     | '__root__'
     | '/'
     | '/_auth'
+    | '/reset-password'
     | '/signin'
     | '/signup'
     | '/_auth/inventory'
+    | '/_auth/lowstock'
     | '/_auth/sales'
+    | '/_auth/topselling'
     | '/_auth/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRouteWithChildren
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SigninRoute: typeof SigninRoute
   SignupRoute: typeof SignupRoute
 }
@@ -116,6 +164,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/signin': {
@@ -139,11 +194,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthInventoryRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/lowstock': {
+      id: '/_auth/lowstock'
+      path: '/lowstock'
+      fullPath: '/lowstock'
+      preLoaderRoute: typeof AuthLowstockRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/sales': {
       id: '/_auth/sales'
       path: '/sales'
       fullPath: '/sales'
       preLoaderRoute: typeof AuthSalesRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/topselling': {
+      id: '/_auth/topselling'
+      path: '/topselling'
+      fullPath: '/topselling'
+      preLoaderRoute: typeof AuthTopsellingRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/dashboard/': {
@@ -158,13 +227,17 @@ declare module '@tanstack/react-router' {
 
 interface AuthRouteChildren {
   AuthInventoryRoute: typeof AuthInventoryRoute
+  AuthLowstockRoute: typeof AuthLowstockRoute
   AuthSalesRoute: typeof AuthSalesRoute
+  AuthTopsellingRoute: typeof AuthTopsellingRoute
   AuthDashboardIndexRoute: typeof AuthDashboardIndexRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
   AuthInventoryRoute: AuthInventoryRoute,
+  AuthLowstockRoute: AuthLowstockRoute,
   AuthSalesRoute: AuthSalesRoute,
+  AuthTopsellingRoute: AuthTopsellingRoute,
   AuthDashboardIndexRoute: AuthDashboardIndexRoute,
 }
 
@@ -173,6 +246,7 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRouteWithChildren,
+  ResetPasswordRoute: ResetPasswordRoute,
   SigninRoute: SigninRoute,
   SignupRoute: SignupRoute,
 }
