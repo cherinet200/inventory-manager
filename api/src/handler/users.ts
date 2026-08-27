@@ -50,8 +50,6 @@ export const signIn = async (req: Request, res: Response) => {
     const correctPassword = await checkPassword(req.body.password, hash);
 
     if (!dbUser || !correctPassword) {
-        console.log("dbUser", dbUser);
-        console.log("correctPassword", correctPassword);
         return res
             .status(401)
             .json({ success: false, message: "Invalid credentials!" });
