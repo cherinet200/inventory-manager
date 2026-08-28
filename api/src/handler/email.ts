@@ -1,28 +1,21 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
-const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT),
-    secure: process.env.SMTP_SECURE === "true",
-    auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASSWORD,
-    },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendMail = async (to: string, subject: string, html: string) => {
-    try {
-        const info = await transporter.sendMail({
-            from: `"Inventory Manager" <${process.env.SMTP_FROM}>`,
-            to,
-            subject,
-            html,
-        });
+    const { data, error } = await resend.emails.send({
+        from: `"Inventory Manager" <${process.env.EMAIL_FROM}>`,
+        to: [to],
+        subject: subject,
+        html: html,
+    });
 
-        return info;
-    } catch (error) {
-        console.error("Email failed:", error);
+    if (error) {
+        console.log(error);
+        throw error;
     }
+
+    return data;
 };
 
 export default sendMail;
