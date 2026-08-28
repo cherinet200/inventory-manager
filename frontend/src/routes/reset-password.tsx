@@ -107,20 +107,22 @@ function RouteComponent() {
             if (res.status === 200) window.location.href = "/signin";
         };
 
+        const handleMatch = () => {
+            formData.password === formData.cPassword
+                ? handleSend()
+                : setWarningStyle((prev) => ({
+                      ...prev,
+                      match: "text-red-600",
+                      mmoving: true,
+                  }));
+        };
+
         formData.password.length >= 8
-            ? handleSend()
+            ? handleMatch()
             : setWarningStyle((prev) => ({
                   ...prev,
                   length: "text-red-600",
                   lmoving: true,
-              }));
-
-        formData.password === formData.cPassword
-            ? handleSend()
-            : setWarningStyle((prev) => ({
-                  ...prev,
-                  match: "text-red-600",
-                  mmoving: true,
               }));
     };
 
