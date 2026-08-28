@@ -21,16 +21,11 @@ export const forgotPassword = async (req: Request, res: Response) => {
         },
     });
 
-    if (!account) return res.json({ message: "Couldn't sent you an email!" });
+    if (!account)
+        return res.status(400).json({ message: "Couldn't sent you an email!" });
 
     const rawToken = crypto.randomBytes(32).toString("hex");
     const resetPasswordUrl = `http://localhost:5173/reset-password?token=${rawToken}`;
-
-    sendMail(
-        email,
-        "Reset password",
-        `<h1>Reset your password</h1><p>${resetPasswordUrl}</p>`,
-    );
 
     const hashToken = crypto
         .createHash("sha256")
@@ -46,6 +41,16 @@ export const forgotPassword = async (req: Request, res: Response) => {
             userId: account.id,
         },
     });
+
+    try {
+        await sendMail(
+            email,
+            "Reset password",
+            `<h1>Reset your password</h1><p>${resetPasswordUrl}</p>`,
+        );
+    } catch (error) {
+        return res.status(400).json({ message: "Couldn't sent you an email" });
+    }
 
     res.status(200).json({ message: "Sent you an email" });
 };
