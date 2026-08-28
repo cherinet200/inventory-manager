@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import brandLogo from "../assets/inventory.png";
 import { useState } from "react";
-import { EyeOff, Eye, Circle, Check } from "lucide-react";
+import { EyeOff, Eye, Check } from "lucide-react";
 
 export const Route = createFileRoute("/reset-password")({
     validateSearch: (search: Record<string, unknown>) => ({
