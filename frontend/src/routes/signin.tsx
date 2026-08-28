@@ -12,6 +12,9 @@ function Signin() {
         email: "",
         password: "",
     });
+    const [message, setMessage] = useState(
+        "Login successful! Redirecting to dashboard...",
+    );
     const [showMessage, setShowMessage] = useState(false);
     const [showWarning, setShowWarning] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
@@ -53,7 +56,7 @@ function Signin() {
         <div className="flex justify-center items-center h-screen gap-100 dark:bg-gray-950">
             {showMessage && (
                 <div className="fixed top-4 left-1/2 -translate-x-1/2 rounded text-green-600 px-8 py-4 shadow-lg bg-green-600/15">
-                    Login successful! Redirecting to dashboard...
+                    {message}
                 </div>
             )}
             {showWarning && (
@@ -122,12 +125,15 @@ function Signin() {
                             </div>
                         </div>
                     </div>
-                    <a
-                        href="/"
-                        className="text-base text-blue-500 font-medium self-end decoration-none"
+                    <button
+                        type="button"
+                        className="text-base text-blue-500 font-medium self-end decoration-none cursor-pointer"
+                        onClick={() =>
+                            (window.location.href = "/forgot-password")
+                        }
                     >
                         Forgot password
-                    </a>
+                    </button>
                 </div>
                 <div className="w-full flex justify-center items-center flex-col gap-5">
                     <button
