@@ -1,13 +1,20 @@
+import { ReactNode } from "react";
 import { Resend } from "resend";
+
+interface SendMailOptions {
+    to: string;
+    subject: string;
+    react: ReactNode;
+}
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const sendMail = async (to: string, subject: string, html: string) => {
+const sendMail = async ({ to, subject, react }: SendMailOptions) => {
     const { data, error } = await resend.emails.send({
         from: `"Inventory Manager" <${process.env.EMAIL_FROM}>`,
         to: [to],
-        subject: subject,
-        html: html,
+        subject,
+        react,
     });
 
     if (error) {
