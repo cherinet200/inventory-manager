@@ -23,39 +23,42 @@ const resetPasswordEmail = ({
 
                 <Preview>Reset Your Inventory Manager Password</Preview>
 
-                <Body className="m-0 bg-gray-100 p-10 text-lg font-sans">
-                    <Container className="mx-auto max-w-xl bg-white shadow-2xl p-10 flex justify-center items-center">
-                        <div className="mx-100">
-                            <Heading className="text-2xl font-bold text-center font-playfair">
-                                Reset Your Password
-                            </Heading>
+                <Body className="flex justify-center items-center m-0">
+                    <div className="m-0 mx-auto bg-gray-100 p-10 text-lg font-sans max-w-xl flex justify-center items-center text center">
+                        <div className="mx-auto max-w-xl bg-white shadow-2xl p-10 flex justify-center items-center">
+                            <div className="max-w-xl">
+                                <Heading className="text-2xl font-bold text-center font-playfair">
+                                    Reset Your Password
+                                </Heading>
 
-                            <Text className="text-gray-600">
-                                You requested to reset your Inventory Manager
-                                password.
-                            </Text>
+                                <Text className="text-gray-600">
+                                    You requested to reset your Inventory
+                                    Manager password.
+                                </Text>
 
-                            <Text className="text-gray-600">
-                                Click the button below to choose a new password.
-                            </Text>
+                                <Text className="text-gray-600">
+                                    Click the button below to choose a new
+                                    password.
+                                </Text>
 
-                            <Button
-                                href={resetPasswordUrl}
-                                className="rounded-lg my-6 px-3 py-1.5 bg-blue-500 text-white text-center font-semibold w-full"
-                            >
-                                Reset Password
-                            </Button>
+                                <Button
+                                    href={resetPasswordUrl}
+                                    className="rounded-lg my-2 px-3 py-1.5 bg-blue-500 text-white text-center font-semibold w-full"
+                                >
+                                    Reset Password
+                                </Button>
 
-                            <Text className="text-sm">
-                                This link will expire in 10 minutes
-                            </Text>
+                                <Text className="text-sm">
+                                    This link will expire in 10 minutes
+                                </Text>
 
-                            <Text className="text-sm">
-                                If you didn't request a password reset, you can
-                                safely ignore this email.
-                            </Text>
+                                <Text className="text-sm">
+                                    If you didn't request a password reset, you
+                                    can safely ignore this email.
+                                </Text>
+                            </div>
                         </div>
-                    </Container>
+                    </div>
                 </Body>
             </Html>
         </Tailwind>
