@@ -129,152 +129,176 @@ function RouteComponent() {
                     </button>
                 </div>
             )}
-            <div className="flex flex-col">
-                <div className="flex justify-between items-center mb-4 py-5 px-5">
-                    <h2 className="text-left text-2xl text-gray-700 dark:text-gray-300">
-                        Sales
-                    </h2>
-                    <div className="flex gap-2">
-                        <button className="flex gap-2 items-center px-2 py-2 border border-gray-600 rounded-md hover:border-gray-700 hover:text-gray-400 hover:cursor-pointer">
-                            <ListFilter size={16} /> Filters
-                        </button>
-                        <button
-                            onClick={() => {
-                                deleteSales(selected);
-                                setSelected([]);
-                            }}
-                            className={`flex gap-2 items-center px-2 py-2 border border-gray-600 rounded-md hover:border-red-600 hover:text-red-600 hover:cursor-pointer ${selected.length < 1 && "text-gray-400"}`}
-                        >
-                            <Trash2 size={16} /> Delete
-                        </button>
+            {!isLoading && sales.length === 0 && (
+                <div className="flex flex-col justify-center items-center gap-8 h-[50dvh] p-10">
+                    <div className="flex flex-col justify-center items-center">
+                        <PackageOpen size={300} className="text-gray-800" />
+                        <div className="text-2xl text-gray-400 font-semibold">
+                            No sales found.
+                        </div>
                     </div>
+                    {/* <button
+                            onClick={() => setSalesFormVisibility("flex")}
+                            className="w-full p-2.5 rounded-md bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-800 dark:hover:text-gray-200 hover:cursor-pointer"
+                        >
+                            Sell Product
+                        </button> */}
                 </div>
-                <table className="divide-y divide-gray-100 dark:divide-gray-900">
-                    <thead className="sticky top-22 bg-white dark:bg-gray-950">
-                        <tr className="">
-                            <Th style="flex gap-4 items-center">
-                                {selected.length !== 0 && (
-                                    <input
-                                        type="checkbox"
-                                        name="check"
-                                        id="checkSales"
-                                        className="appearance-none w-3 h-3 rounded-[100px] border-2 border-gray-500 bg-black checked:border-blue-600 cursor-pointer"
-                                        checked={
-                                            selected.length === SalesId.length
-                                        }
-                                        onChange={() => {
-                                            selected.length !== SalesId.length
-                                                ? setSelected(SalesId)
-                                                : setSelected([]);
-                                        }}
-                                    />
-                                )}
-                                Product
-                            </Th>
-                            <Th>Price</Th>
-                            <Th>Quantity</Th>
-                            <Th>Total</Th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100 dark:divide-gray-900">
-                        {sales.map((sale, index) => (
-                            <tr
-                                key={index}
+            )}
+            {!isLoading && sales.length > 0 && (
+                <div className="flex flex-col">
+                    <div className="flex justify-between items-center mb-4 py-5 px-5">
+                        <h2 className="text-left text-2xl text-gray-700 dark:text-gray-300">
+                            Sales
+                        </h2>
+                        <div className="flex gap-2">
+                            <button className="flex gap-2 items-center px-2 py-2 border border-gray-600 rounded-md hover:border-gray-700 hover:text-gray-400 hover:cursor-pointer">
+                                <ListFilter size={16} /> Filters
+                            </button>
+                            <button
                                 onClick={() => {
-                                    selected.length !== 0 &&
-                                        setSelected((prev) =>
-                                            prev.includes(sale.id)
-                                                ? prev.filter(
-                                                      (id) => id !== sale.id,
-                                                  )
-                                                : [...prev, sale.id],
-                                        );
+                                    deleteSales(selected);
+                                    setSelected([]);
                                 }}
-                                onContextMenu={(e) =>
-                                    handleSalesActions(e, sale.id + "")
-                                }
-                                className="hover:bg-gray-100 dark:hover:bg-gray-900"
+                                className={`flex gap-2 items-center px-2 py-2 border border-gray-600 rounded-md hover:border-red-600 hover:text-red-600 hover:cursor-pointer ${selected.length < 1 && "text-gray-400"}`}
                             >
-                                <Td style="flex gap-4 items-center">
+                                <Trash2 size={16} /> Delete
+                            </button>
+                        </div>
+                    </div>
+                    <table className="divide-y divide-gray-100 dark:divide-gray-900">
+                        <thead className="sticky top-22 bg-white dark:bg-gray-950">
+                            <tr className="">
+                                <Th style="flex gap-4 items-center">
                                     {selected.length !== 0 && (
                                         <input
                                             type="checkbox"
                                             name="check"
-                                            id={sale.id + ""}
+                                            id="checkSales"
                                             className="appearance-none w-3 h-3 rounded-[100px] border-2 border-gray-500 bg-black checked:border-blue-600 cursor-pointer"
                                             checked={
-                                                selected.includes(sale.id) &&
-                                                true
+                                                selected.length ===
+                                                SalesId.length
                                             }
                                             onChange={() => {
-                                                setSelected((prev) => [
-                                                    ...prev,
-                                                ]);
+                                                selected.length !==
+                                                SalesId.length
+                                                    ? setSelected(SalesId)
+                                                    : setSelected([]);
                                             }}
                                         />
                                     )}
-                                    {sale.productId}
-                                </Td>
-                                <Td>${sale.price}</Td>
-                                <Td>{sale.quantity}</Td>
-                                <Td>${sale.total}</Td>
+                                    Product
+                                </Th>
+                                <Th>Price</Th>
+                                <Th>Quantity</Th>
+                                <Th>Total</Th>
                             </tr>
-                        ))}
-                    </tbody>
-                    <tfoot
-                        className={
-                            pagination &&
-                            !pagination.hasPreviousPage &&
-                            !pagination.hasNextPage
-                                ? "hidden"
-                                : ""
-                        }
-                    >
-                        <tr>
-                            <Td colSpan={7}>
-                                <div className="flex items-center justify-between">
-                                    <button
-                                        className={`border px-5 py-2 rounded-lg ${pagination && !pagination.hasPreviousPage && "text-gray-600"}`}
-                                        onClick={async () => {
-                                            pagination &&
-                                                (await fetchSales(
-                                                    pagination.page - 1,
-                                                ));
-                                        }}
-                                        disabled={
-                                            pagination
-                                                ? !pagination.hasPreviousPage
-                                                : true
-                                        }
-                                    >
-                                        Previous
-                                    </button>
-                                    <div className="dark:text-gray-500">
-                                        Page {pagination && pagination!.page} of{" "}
-                                        {pagination && pagination!.totalPages}
+                        </thead>
+                        <tbody className="divide-y divide-gray-100 dark:divide-gray-900">
+                            {sales.map((sale, index) => (
+                                <tr
+                                    key={index}
+                                    onClick={() => {
+                                        selected.length !== 0 &&
+                                            setSelected((prev) =>
+                                                prev.includes(sale.id)
+                                                    ? prev.filter(
+                                                          (id) =>
+                                                              id !== sale.id,
+                                                      )
+                                                    : [...prev, sale.id],
+                                            );
+                                    }}
+                                    onContextMenu={(e) =>
+                                        handleSalesActions(e, sale.id + "")
+                                    }
+                                    className="hover:bg-gray-100 dark:hover:bg-gray-900"
+                                >
+                                    <Td style="flex gap-4 items-center">
+                                        {selected.length !== 0 && (
+                                            <input
+                                                type="checkbox"
+                                                name="check"
+                                                id={sale.id + ""}
+                                                className="appearance-none w-3 h-3 rounded-[100px] border-2 border-gray-500 bg-black checked:border-blue-600 cursor-pointer"
+                                                checked={
+                                                    selected.includes(
+                                                        sale.id,
+                                                    ) && true
+                                                }
+                                                onChange={() => {
+                                                    setSelected((prev) => [
+                                                        ...prev,
+                                                    ]);
+                                                }}
+                                            />
+                                        )}
+                                        {sale.productId}
+                                    </Td>
+                                    <Td>${sale.price}</Td>
+                                    <Td>{sale.quantity}</Td>
+                                    <Td>${sale.total}</Td>
+                                </tr>
+                            ))}
+                        </tbody>
+                        <tfoot
+                            className={
+                                pagination &&
+                                !pagination.hasPreviousPage &&
+                                !pagination.hasNextPage
+                                    ? "hidden"
+                                    : ""
+                            }
+                        >
+                            <tr>
+                                <Td colSpan={7}>
+                                    <div className="flex items-center justify-between">
+                                        <button
+                                            className={`border px-5 py-2 rounded-lg ${pagination && !pagination.hasPreviousPage && "text-gray-600"}`}
+                                            onClick={async () => {
+                                                pagination &&
+                                                    (await fetchSales(
+                                                        pagination.page - 1,
+                                                    ));
+                                            }}
+                                            disabled={
+                                                pagination
+                                                    ? !pagination.hasPreviousPage
+                                                    : true
+                                            }
+                                        >
+                                            Previous
+                                        </button>
+                                        <div className="dark:text-gray-500">
+                                            Page{" "}
+                                            {pagination && pagination!.page} of{" "}
+                                            {pagination &&
+                                                pagination!.totalPages}
+                                        </div>
+                                        <button
+                                            className={`border px-5 py-2 rounded-lg ${pagination && !pagination.hasNextPage && "text-gray-600"}`}
+                                            onClick={async () => {
+                                                pagination &&
+                                                    (await fetchSales(
+                                                        pagination.page + 1,
+                                                    ));
+                                            }}
+                                            disabled={
+                                                pagination
+                                                    ? !pagination.hasNextPage
+                                                    : true
+                                            }
+                                        >
+                                            Next
+                                        </button>
                                     </div>
-                                    <button
-                                        className={`border px-5 py-2 rounded-lg ${pagination && !pagination.hasNextPage && "text-gray-600"}`}
-                                        onClick={async () => {
-                                            pagination &&
-                                                (await fetchSales(
-                                                    pagination.page + 1,
-                                                ));
-                                        }}
-                                        disabled={
-                                            pagination
-                                                ? !pagination.hasNextPage
-                                                : true
-                                        }
-                                    >
-                                        Next
-                                    </button>
-                                </div>
-                            </Td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
+                                </Td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            )}
         </div>
     );
 }
