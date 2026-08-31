@@ -163,7 +163,7 @@ function Signup() {
                 <img src={brandLogo} alt="Brand" />
             </div>
             <form
-                className="h-full w-97.5 flex justify-center items-center flex-col gap-8"
+                className="h-full w-120 flex justify-center items-center flex-col gap-8"
                 onSubmit={handleSubmit}
             >
                 <div className="flex justify-center items-center flex-col gap-4">
