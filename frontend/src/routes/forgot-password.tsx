@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import Logo from "../assets/inventory.png";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check } from "lucide-react";
 
 export const Route = createFileRoute("/forgot-password")({
@@ -10,6 +10,8 @@ export const Route = createFileRoute("/forgot-password")({
 function RouteComponent() {
     const [message, setMessage] = useState("");
     const [wMessage, setWMessage] = useState("");
+    const [sent, setSent] = useState<boolean>(false);
+    const [seconds, setSeconds] = useState<number>(30);
     const [showMessage, setShowMessage] = useState(false);
     const [showWarning, setShowWarning] = useState(false);
     const [email, setEmail] = useState("");
@@ -83,7 +85,23 @@ function RouteComponent() {
             setWMessage(data.message);
             setShowWarning(true);
         }
+
+        setTimeout(() => {
+            setSent(true);
+            setSeconds(30);
+            setShowMessage(false);
+            setWMessage("");
+        }, 2000);
     };
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            seconds > 0 && setSeconds((prev) => prev - 1);
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [seconds]);
+
     return (
         <div className="flex justify-center items-center h-screen gap-100 dark:bg-gray-950">
             {showMessage && (
@@ -141,22 +159,37 @@ function RouteComponent() {
                             }))
                         }
                     >
-                        <div className="flex items-center justify-center">
-                            <div className="flex items-center justify-center gap-1">
-                                <div className="flex items-center justify-center w-2.5 h-2.5 rounded-full border">
-                                    {warningStyle.email ===
-                                        "text-green-500" && (
-                                        <Check className="w-3 h-3 stroke-3" />
-                                    )}
-                                </div>
-                                Must be valid email.
+                        <div className="flex items-center justify-center gap-1">
+                            <div className="flex items-center justify-center w-2.5 h-2.5 rounded-full border">
+                                {warningStyle.email === "text-green-500" && (
+                                    <Check className="w-3 h-3 stroke-3" />
+                                )}
                             </div>
+                            Must be valid email.
                         </div>
                     </div>
                 </div>
-                <div className="w-full flex justify-center items-center flex-col gap-5">
+                <div className="w-full flex justify-center items-center flex-col gap-5 -mt-5">
+                    {sent && (
+                        <div className="text-gray-400">
+                            <span className="text-gray-300">
+                                Didn't get the link?
+                            </span>{" "}
+                            <button
+                                disabled={sent && seconds > 0}
+                                className={`cursor-pointer ${seconds < 1 && "hover:text-blue-600"}`}
+                            >
+                                Resend{" "}
+                                {seconds > 0 && (
+                                    <span>in {seconds} seconds</span>
+                                )}
+                            </button>
+                        </div>
+                    )}
+
                     <button
                         type="submit"
+                        disabled={sent && seconds > 0}
                         className="text-lg text-white bg-blue-500 dark:bg-blue-600 font-normal cursor-pointer border-none rounded-md w-full p-2.5"
                     >
                         Send Email
