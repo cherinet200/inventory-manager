@@ -129,6 +129,16 @@ function RouteComponent() {
                     </button>
                 </div>
             )}
+            {isLoading && (
+                <div className="flex justify-center gap-4">
+                    <span>Fetching Sales</span>
+                    <div className="flex items-center gap-1.5">
+                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-blue-500 [animation-delay:-0.3s] [animation-duration:1s]" />
+                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-blue-500 [animation-delay:-1.5s] [animation-duration:1s]" />
+                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-blue-500 [animation-duration:1s]" />
+                    </div>
+                </div>
+            )}
             {!isLoading && sales.length === 0 && (
                 <div className="flex flex-col justify-center items-center gap-8 h-[50dvh] p-10">
                     <div className="flex flex-col justify-center items-center">

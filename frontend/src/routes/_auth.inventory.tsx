@@ -193,10 +193,12 @@ function Inventory() {
                 </div>
             )}
             {isLoading && (
-                <div className="flex justify-center">
-                    <div className="flex justify-center items-center gap-1">
-                        <div className="">Fetching products</div>
-                        <LoaderCircle className="animate-spin [animation-duration:0.5s]" />
+                <div className="flex justify-center gap-4">
+                    <span>Fetching Products</span>
+                    <div className="flex items-center gap-1.5">
+                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-blue-500 [animation-delay:-0.3s] [animation-duration:1s]" />
+                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-blue-500 [animation-delay:-1.5s] [animation-duration:1s]" />
+                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-blue-500 [animation-duration:1s]" />
                     </div>
                 </div>
             )}
