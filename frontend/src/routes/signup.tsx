@@ -96,17 +96,18 @@ function Signup() {
 
         // Valid email
 
-        name === "email" && isValidEmail(value)
-            ? setWarningStyle((prev) => ({
-                  ...prev,
-                  email: "text-green-500",
-                  emoving: false,
-              }))
-            : setWarningStyle((prev) => ({
-                  ...prev,
-                  email: "text-gray-400",
-                  emoving: false,
-              }));
+        name === "email" &&
+            (isValidEmail(value)
+                ? setWarningStyle((prev) => ({
+                      ...prev,
+                      email: "text-green-500",
+                      emoving: false,
+                  }))
+                : setWarningStyle((prev) => ({
+                      ...prev,
+                      email: "text-gray-400",
+                      emoving: false,
+                  })));
     };
 
     const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
