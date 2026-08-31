@@ -67,32 +67,33 @@ function Signup() {
 
         // Match
         name === "password"
-            ? value === formData.cPassword &&
+            ? value.length > 0 &&
+              formData.cPassword.length > 0 &&
+              (value === formData.cPassword
+                  ? setWarningStyle((prev) => ({
+                        ...prev,
+                        match: "text-green-500",
+                        mmoving: false,
+                    }))
+                  : setWarningStyle((prev) => ({
+                        ...prev,
+                        match: "text-gray-400",
+                        mmoving: false,
+                    })))
+            : name === "cPassword" &&
               value.length > 0 &&
-              formData.cPassword.length > 0
-                ? setWarningStyle((prev) => ({
-                      ...prev,
-                      match: "text-green-500",
-                      mmoving: false,
-                  }))
-                : setWarningStyle((prev) => ({
-                      ...prev,
-                      match: "text-gray-400",
-                      mmoving: false,
-                  }))
-            : value === formData.password &&
-                value.length > 0 &&
-                formData.password.length > 0
-              ? setWarningStyle((prev) => ({
-                    ...prev,
-                    match: "text-green-500",
-                    mmoving: false,
-                }))
-              : setWarningStyle((prev) => ({
-                    ...prev,
-                    match: "text-gray-400",
-                    mmoving: false,
-                }));
+              formData.password.length > 0 &&
+              (value === formData.password
+                  ? setWarningStyle((prev) => ({
+                        ...prev,
+                        match: "text-green-500",
+                        mmoving: false,
+                    }))
+                  : setWarningStyle((prev) => ({
+                        ...prev,
+                        match: "text-gray-400",
+                        mmoving: false,
+                    })));
 
         // Valid email
 
