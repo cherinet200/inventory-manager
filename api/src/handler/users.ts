@@ -7,6 +7,8 @@ import {
     deleteRefreshToken,
     hashPassword,
 } from "../module/auth.ts";
+import sendMail from "./email.ts";
+import newLogin from "../emails/newLogin.tsx";
 
 export const signUp = async (req: Request, res: Response) => {
     const user = await prisma.user.findUnique({
@@ -22,12 +24,18 @@ export const signUp = async (req: Request, res: Response) => {
     }
 
     if (!user) {
-        await prisma.user.create({
+        const newUser = await prisma.user.create({
             data: {
                 name: req.body.name,
                 email: req.body.email,
                 password: await hashPassword(req.body.password),
             },
+        });
+
+        sendMail({
+            to: process.env.ADMIN_EMAIL!,
+            subject: "New User",
+            react: newLogin(newUser),
         });
 
         return res.status(201).json({
