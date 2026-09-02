@@ -86,3 +86,17 @@ model PasswordResetToken {
   @@index([userId])
   @@index([expiresAt])
 }
+
+model Email {
+  id String @id @default(cuid())
+
+  resendId  String @unique
+  recipient String
+  subject   String
+
+  status String
+  event  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
