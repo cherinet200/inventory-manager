@@ -81,6 +81,10 @@ function RouteComponent() {
         if (res.status === 200) {
             setMessage(data.message);
             setShowMessage(true);
+        } else if (res.status === 429) {
+            setWMessage(data.message);
+            setShowWarning(true);
+            return;
         } else {
             setWMessage(data.message);
             setShowWarning(true);
