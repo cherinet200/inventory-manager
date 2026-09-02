@@ -86,12 +86,13 @@ function RouteComponent() {
             setShowWarning(true);
         }
 
+        setSent(true);
+        setSeconds(30);
+
         setTimeout(() => {
-            setSent(true);
-            setSeconds(30);
             setShowMessage(false);
             setWMessage("");
-        }, 2000);
+        }, 10000);
     };
 
     useEffect(() => {
