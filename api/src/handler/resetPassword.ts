@@ -22,8 +22,21 @@ export const forgotPassword = async (req: Request, res: Response) => {
         },
     });
 
+    const requestsBefore = await prisma.email.count({
+        where: {
+            recipient: email,
+        },
+    });
+
+    console.log(requestsBefore);
+
     if (!account)
         return res.status(400).json({ message: "Couldn't sent you an email!" });
+
+    if (requestsBefore > 10)
+        return res
+            .status(429)
+            .json({ message: "Reset password request limit reached!" });
 
     const rawToken = crypto.randomBytes(32).toString("hex");
     const resetPasswordUrl = `${process.env.FRONTEND_URL}/reset-password?token=${rawToken}`;
