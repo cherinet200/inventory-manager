@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { Resend } from "resend";
+import prisma from "../db.ts";
 
 interface SendMailOptions {
     to: string;
@@ -21,6 +22,15 @@ const sendMail = async ({ to, subject, react }: SendMailOptions) => {
         console.log(error);
         throw error;
     }
+
+    await prisma.email.create({
+        data: {
+            resendId: data.id,
+            recipient: to,
+            subject: subject,
+            status: "sent",
+        },
+    });
 
     return data;
 };
