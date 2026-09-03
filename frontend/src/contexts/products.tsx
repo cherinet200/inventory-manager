@@ -89,6 +89,9 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
             return await fetch(`/api/editProduct/${productId}`, {
                 method: "PUT",
                 credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
                 body: JSON.stringify({
                     ...formData,
                 }),
@@ -131,7 +134,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         setFormData: React.Dispatch<React.SetStateAction<SalesData>>,
     ) => {
         const defaultFormData: SalesData = {
-            productId: 0,
+            productId: "",
             quantity: 0,
             price: 0,
             total: 0,
