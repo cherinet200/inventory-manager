@@ -35,6 +35,7 @@ export interface SalesData {
 }
 
 export interface SalesDatas {
+    name: string;
     id: number;
     productId: number;
     quantity: number;
