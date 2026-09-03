@@ -5,7 +5,7 @@ interface SalesContextType {
     sales: SalesDatas[];
     pagination: Pagination | null;
     fetchSales: (page?: number, limit?: number) => Promise<void>;
-    deleteSales: (saleIds: number[]) => void;
+    deleteSales: (saleIds: number[], sales: any) => void;
 }
 
 const SalesContext = createContext<SalesContextType | null>(null);
@@ -39,7 +39,7 @@ export function SalesProvider({ children }: { children: React.ReactNode }) {
             console.error("Error fetching sales data:", error);
         }
     };
-    const deleteSales = async (saleIds: number[]) => {
+    const deleteSales = async (saleIds: number[], sales: any) => {
         const deleteSales = async () => {
             return await fetch("/api/deleteSales", {
                 method: "DELETE",
@@ -47,7 +47,7 @@ export function SalesProvider({ children }: { children: React.ReactNode }) {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ ids: saleIds }),
+                body: JSON.stringify({ ids: saleIds, sales }),
             });
         };
 
