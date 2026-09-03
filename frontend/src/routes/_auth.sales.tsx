@@ -118,7 +118,11 @@ function RouteComponent() {
                     </button>
                     <button
                         onClick={() => {
-                            deleteSales([+contextMenu.salesId]);
+                            const selectedSales = sales.filter(
+                                (sale) => sale.id === +contextMenu.salesId,
+                            );
+                            console.log(selectedSales);
+                            deleteSales([+contextMenu.salesId], selectedSales);
                             setSelected([]);
                             setContextMenu(null);
                         }}
@@ -167,7 +171,12 @@ function RouteComponent() {
                             </button>
                             <button
                                 onClick={() => {
-                                    deleteSales(selected);
+                                    const selectedSales = sales.filter(
+                                        (sale, index) =>
+                                            selected[index] === sale.id,
+                                    );
+                                    console.log(selectedSales);
+                                    deleteSales(selected, selectedSales);
                                     setSelected([]);
                                 }}
                                 className={`flex gap-2 items-center px-2 py-2 border border-gray-600 rounded-md hover:border-red-600 hover:text-red-600 hover:cursor-pointer ${selected.length < 1 && "text-gray-400"}`}
@@ -244,7 +253,7 @@ function RouteComponent() {
                                                 }}
                                             />
                                         )}
-                                        {sale.productId}
+                                        {sale.name}
                                     </Td>
                                     <Td>${sale.price}</Td>
                                     <Td>{sale.quantity}</Td>
