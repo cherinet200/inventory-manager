@@ -1,8 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Chart } from "@tanstack/charts/react";
-import { barY, defineChart } from "@tanstack/charts";
-import { scaleBand, scaleLinear, scaleOrdinal } from "d3-scale";
-import { tooltip } from "@tanstack/charts/tooltip";
 import { useEffect, useMemo, useState } from "react";
 import {
     ShoppingCart,
@@ -15,7 +11,6 @@ import {
     Boxes,
 } from "lucide-react";
 import { Td, Th } from "../components/table";
-import { index } from "d3-array";
 import { Product } from "../types/types";
 
 export const Route = createFileRoute("/_auth/dashboard/")({
@@ -50,7 +45,7 @@ interface TopSellingProducts {
 const purchase: StatCard[] = [
     {
         label: "Purchase",
-        value: `$82`,
+        value: `82`,
         icon: ShoppingBag,
         iconBg: "bg-blue-400/15",
         iconColor: "text-blue-400",
@@ -94,7 +89,7 @@ export default function Dashboard() {
             const salesDetail: StatCard[] = [
                 {
                     label: "Sales",
-                    value: `$${overviewData.sales}`,
+                    value: `${overviewData.sales}`,
                     icon: ShoppingCart,
                     iconBg: "bg-blue-400/15",
                     iconColor: "text-blue-400",
