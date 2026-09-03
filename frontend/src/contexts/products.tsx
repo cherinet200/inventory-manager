@@ -134,7 +134,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         setFormData: React.Dispatch<React.SetStateAction<SalesData>>,
     ) => {
         const defaultFormData: SalesData = {
-            productId: "",
+            productId: 0,
             quantity: 0,
             price: 0,
             total: 0,
