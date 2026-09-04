@@ -18,5 +18,6 @@
         "types": ["node"],
         "sourceMap": true
     },
-    "include": ["src/**/*", "src/emails"]
+    "include": ["src/**/*"],
+    "exclude": ["src/emails"]
 }
