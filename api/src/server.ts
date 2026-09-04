@@ -14,9 +14,17 @@ dotenv.config();
 const app = express();
 
 const allowedOrigins = [
-    "https://inventory-manager-omega-two.vercel.app/",
+    "https://inventory-manager-omega-two.vercel.app",
     "http://localhost:5173",
 ];
+
+app.use(
+    cors({
+        origin: allowedOrigins,
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        credentials: true,
+    }),
+);
 
 app.use(
     "/webhooks/resend",
@@ -27,13 +35,6 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-app.use(
-    cors({
-        origin: allowedOrigins,
-        methods: ["GET", "POST", "PUT", "DELETE"],
-        credentials: true,
-    }),
-);
 
 app.get("/", (req, res) => {
     res.json({ message: "Welcome to my inventory manager!" });
