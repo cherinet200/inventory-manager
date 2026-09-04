@@ -3,7 +3,7 @@ import crypto from "crypto";
 import prisma from "../db.js";
 import sendMail from "./email.js";
 import { hashPassword } from "../module/auth.js";
-import resetPasswordEmail from "../emails/resetPasswordEmail.tsx";
+import resetPasswordEmail from "../emails/resetPasswordEmail.js";
 
 export const forgotPassword = async (req: Request, res: Response) => {
     if (!req.body)

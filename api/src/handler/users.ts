@@ -8,7 +8,7 @@ import {
     hashPassword,
 } from "../module/auth.js";
 import sendMail from "./email.js";
-import newLogin from "../emails/newLogin.tsx";
+import newLogin from "../emails/newLogin.js";
 
 export const signUp = async (req: Request, res: Response) => {
     const user = await prisma.user.findUnique({
