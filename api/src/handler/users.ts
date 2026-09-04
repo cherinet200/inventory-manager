@@ -7,8 +7,8 @@ import {
     deleteRefreshToken,
     hashPassword,
 } from "../module/auth.js";
-// import sendMail from "./email.js";
-// import newLogin from "../emails/newLogin.js";
+import sendMail from "./email.js";
+import newLogin from "../emails/newLogin.js";
 
 export const signUp = async (req: Request, res: Response) => {
     const user = await prisma.user.findUnique({
@@ -32,11 +32,11 @@ export const signUp = async (req: Request, res: Response) => {
             },
         });
 
-        // sendMail({
-        //     to: process.env.ADMIN_EMAIL!,
-        //     subject: "New User",
-        //     react: newLogin(newUser),
-        // });
+        sendMail({
+            to: process.env.ADMIN_EMAIL!,
+            subject: "New User",
+            react: newLogin(newUser),
+        });
 
         return res.status(201).json({
             success: true,
