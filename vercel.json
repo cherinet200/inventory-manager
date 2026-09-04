@@ -6,7 +6,8 @@
         },
         "backend": {
             "root": "api/",
-            "entrypoint": "api/index.js"
+            "entrypoint": "api/index.ts",
+            "framework": "express"
         }
     },
     "rewrites": [
