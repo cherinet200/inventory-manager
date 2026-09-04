@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Resend } from "resend";
-import prisma from "../db.ts";
+import prisma from "../db.js";
 
 interface SendMailOptions {
     to: string;

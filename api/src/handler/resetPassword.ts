@@ -1,8 +1,8 @@
 import type { Request, Response } from "express";
 import crypto from "crypto";
-import prisma from "../db.ts";
-import sendMail from "./email.ts";
-import { hashPassword } from "../module/auth.ts";
+import prisma from "../db.js";
+import sendMail from "./email.js";
+import { hashPassword } from "../module/auth.js";
 import resetPasswordEmail from "../emails/resetPasswordEmail.tsx";
 
 export const forgotPassword = async (req: Request, res: Response) => {

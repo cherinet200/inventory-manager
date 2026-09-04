@@ -1,11 +1,11 @@
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
-import prisma from "../db.ts";
+import prisma from "../db.js";
 import jwt from "jsonwebtoken";
 import type { JwtPayload, SignOptions } from "jsonwebtoken";
 import type { NextFunction, Request, Response } from "express";
 import { randomUUID } from "crypto";
-import { clearAuthCookies } from "../handler/users.ts";
+import { clearAuthCookies } from "../handler/users.js";
 
 dotenv.config();
 

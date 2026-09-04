@@ -1,4 +1,4 @@
-import prisma from "../db.ts";
+import prisma from "../db.js";
 import type { Request, Response } from "express";
 
 interface SortQuery {

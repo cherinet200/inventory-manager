@@ -1,6 +1,6 @@
 import { Router, type Request, type Response } from "express";
 import { Resend } from "resend";
-import prisma from "../db.ts";
+import prisma from "../db.js";
 
 const resendWebhookRouter = Router();
 

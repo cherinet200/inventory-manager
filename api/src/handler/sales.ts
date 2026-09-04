@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import prisma from "../db.ts";
+import prisma from "../db.js";
 
 interface SaleInterface {
     id: number;

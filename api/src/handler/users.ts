@@ -1,13 +1,13 @@
 import bcrypt from "bcrypt";
-import prisma from "../db.ts";
+import prisma from "../db.js";
 import type { Request, Response } from "express";
 import {
     checkPassword,
     createJwt,
     deleteRefreshToken,
     hashPassword,
-} from "../module/auth.ts";
-import sendMail from "./email.ts";
+} from "../module/auth.js";
+import sendMail from "./email.js";
 import newLogin from "../emails/newLogin.tsx";
 
 export const signUp = async (req: Request, res: Response) => {
