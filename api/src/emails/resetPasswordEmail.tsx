@@ -1,4 +1,3 @@
-import path from "path";
 import * as React from "react";
 import {
     Html,
