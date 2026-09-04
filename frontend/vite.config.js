@@ -21,7 +21,6 @@ export default defineConfig({
             "/auth": {
                 target: "https://inventory-manager-mu-silk.vercel.app/",
                 changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/auth/, ""),
             },
         },
     },
