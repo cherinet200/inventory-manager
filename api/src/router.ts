@@ -4,15 +4,15 @@ import {
     createProduct,
     editProduct,
     deleteProduct,
-} from "./handler/products.ts";
-import { deleteSales, getSales, sellProduct } from "./handler/sales.ts";
+} from "./handler/products.js";
+import { deleteSales, getSales, sellProduct } from "./handler/sales.js";
 import {
     getLowStocks,
     getProductSummary,
     getSalesOverview,
     getTopSelling,
-} from "./handler/dashboard.ts";
-import { logOut } from "./handler/users.ts";
+} from "./handler/dashboard.js";
+import { logOut } from "./handler/users.js";
 
 const router = Router();
 
