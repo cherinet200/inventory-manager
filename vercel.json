@@ -1,25 +1,26 @@
 {
-    "version": 2,
-    "services": [
-        {
-            "name": "frontend-service",
-            "src": "frontend",
-            "framework": "nextjs"
+    "services": {
+        "frontend": {
+            "root": "frontend/",
+            "framework": "vite"
         },
-        {
-            "name": "backend-service",
-            "src": "backend",
-            "framework": "express"
+        "backend": {
+            "root": "backend/",
+            "entrypoint": "api/index.js"
         }
-    ],
+    },
     "rewrites": [
         {
-            "source": "/backend/:path*",
-            "destination": "backend-service"
+            "source": "/api/:path*",
+            "destination": {
+                "service": "backend"
+            }
         },
         {
             "source": "/:path*",
-            "destination": "frontend-service"
+            "destination": {
+                "service": "frontend"
+            }
         }
     ]
 }
