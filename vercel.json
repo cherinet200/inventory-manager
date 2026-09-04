@@ -6,7 +6,6 @@
         },
         "backend": {
             "root": "api/",
-            "entrypoint": "index.ts",
             "framework": "express"
         }
     },
