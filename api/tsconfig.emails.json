@@ -1,0 +1,7 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "outDir": "dist/emails"
+    },
+    "include": ["src/emails/**/*.tsx"]
+}
