@@ -2,21 +2,20 @@
     "compilerOptions": {
         "target": "ES2022",
         "module": "NodeNext",
-        "jsx": "react-jsx",
         "moduleResolution": "NodeNext",
 
         "rootDir": "./src",
+        "outDir": "./dist",
+
+        "jsx": "react-jsx",
 
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
-        "allowImportingTsExtensions": true,
-        "noEmit": true,
         "forceConsistentCasingInFileNames": true,
 
         "types": ["node"],
-
         "sourceMap": true
     },
-    "include": ["src/**/*", "src/emails"]
+    "include": ["src/**/*"]
 }
