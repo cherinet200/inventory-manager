@@ -2,7 +2,8 @@
     "extends": "./tsconfig.json",
     "compilerOptions": {
         "outDir": "dist/emails",
-        "jsx": "react-jsx"
+        "jsx": "react-jsx",
+        "noEmit": false
     },
 
     "include": ["src/emails/**/*.tsx"],
