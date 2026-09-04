@@ -40,11 +40,11 @@ app.get("/", (req, res) => {
     res.json({ message: "Welcome to my inventory manager!" });
 });
 
-app.post("/signup", signUp);
-app.post("/signin", signIn);
+app.post("/auth/signup", signUp);
+app.post("/auth/signin", signIn);
 
-app.post("/forgotPassword", forgotPassword);
-app.post("/changePassword", changePassword);
+app.post("/auth/forgotPassword", forgotPassword);
+app.post("/auth/changePassword", changePassword);
 
 app.use("/api", Authentication, router);
 
