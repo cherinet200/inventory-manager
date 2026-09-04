@@ -15,11 +15,11 @@ export default defineConfig({
     server: {
         proxy: {
             "/api": {
-                target: "https://inventory-manager-mu-silk.vercel.app/",
+                target: "https://inventory-manager-mu-silk.vercel.app",
                 changeOrigin: true,
             },
             "/auth": {
-                target: "https://inventory-manager-mu-silk.vercel.app/",
+                target: "https://inventory-manager-mu-silk.vercel.app",
                 changeOrigin: true,
             },
         },
