@@ -1,11 +1,21 @@
 {
-    "extends": "./tsconfig.json",
     "compilerOptions": {
-        "outDir": "dist/emails",
-        "jsx": "react-jsx",
-        "noEmit": false
+        "target": "esnext",
+        "lib": ["dom", "dom.iterable", "esnext"],
+        "allowJs": true,
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "noFallthroughCasesInSwitch": true,
+        "module": "esnext",
+        "moduleResolution": "bundler",
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "noEmit": true,
+        "jsx": "react-jsx"
     },
-
     "include": ["src/emails/**/*.tsx"],
     "exclude": []
 }
