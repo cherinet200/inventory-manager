@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "dev": "nodemon",
-        "build": "prisma generate",
+        "build": "prisma generate && tsc",
         "email:dev": "email dev --dir src/emails",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
