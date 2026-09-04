@@ -92,7 +92,7 @@ export const getSales = async (req: Request, res: Response) => {
         const hasPreviousPage = page > 1;
         const hasNextPage = page < totalPages;
 
-        const salesIds = sales.map((sale) => sale.productId);
+        const salesIds = sales.map((sale: any) => sale.productId);
 
         const products = await prisma.product.findMany({
             where: {
@@ -102,9 +102,9 @@ export const getSales = async (req: Request, res: Response) => {
             },
         });
 
-        const returnSales = sales.map((sale) => {
+        const returnSales = sales.map((sale: any) => {
             const prod = products.filter(
-                (product) => product.id === sale.productId,
+                (product: any) => product.id === sale.productId,
             );
 
             const retSale = {
