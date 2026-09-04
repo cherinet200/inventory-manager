@@ -1,13 +1,13 @@
 import express from "express";
 import dotenv from "dotenv";
-import { signIn, signUp } from "./handler/users.ts";
-import { Authentication } from "./module/auth.ts";
-import router from "./router.ts";
+import { signIn, signUp } from "./handler/users.js";
+import { Authentication } from "./module/auth.js";
+import router from "./router.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import { forgotPassword, changePassword } from "./handler/resetPassword.ts";
-import resendWebhook from "./services/resendWebHook.ts";
-import resendWebhookRouter from "./services/resendWebHook.ts";
+import { forgotPassword, changePassword } from "./handler/resetPassword.js";
+import resendWebhook from "./services/resendWebHook.js";
+import resendWebhookRouter from "./services/resendWebHook.js";
 
 dotenv.config();
 
