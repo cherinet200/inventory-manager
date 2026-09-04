@@ -3,7 +3,7 @@ import crypto from "crypto";
 import prisma from "../db.js";
 import sendMail from "./email.js";
 import { hashPassword } from "../module/auth.js";
-// import resetPasswordEmail from "../emails/resetPasswordEmail.js";
+import resetPasswordEmail from "../emails/resetPasswordEmail.js";
 
 export const forgotPassword = async (req: Request, res: Response) => {
     if (!req.body)
@@ -57,13 +57,13 @@ export const forgotPassword = async (req: Request, res: Response) => {
     });
 
     try {
-        // await sendMail({
-        //     to: email,
-        //     subject: "Reset password",
-        //     react: resetPasswordEmail({
-        //         resetPasswordUrl,
-        //     }),
-        // });
+        await sendMail({
+            to: email,
+            subject: "Reset password",
+            react: resetPasswordEmail({
+                resetPasswordUrl,
+            }),
+        });
     } catch (error) {
         console.log(error);
         return res.status(400).json({ message: "Couldn't sent you an email" });
