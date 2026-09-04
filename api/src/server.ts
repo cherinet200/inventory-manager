@@ -13,6 +13,11 @@ dotenv.config();
 
 const app = express();
 
+const allowedOrigins = [
+    "https://inventory-manager-omega-two.vercel.app/",
+    "http://localhost:5173",
+];
+
 app.use(
     "/webhooks/resend",
     express.raw({ type: "application/json" }),
@@ -24,7 +29,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(
     cors({
-        origin: "http://localhost:5173",
+        origin: allowedOrigins,
         methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true,
     }),

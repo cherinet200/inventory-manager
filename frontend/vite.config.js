@@ -15,11 +15,11 @@ export default defineConfig({
     server: {
         proxy: {
             "/api": {
-                target: "http://localhost:5000",
+                target: "https://inventory-manager-omega-two.vercel.app/",
                 changeOrigin: true,
             },
             "/auth": {
-                target: "http://localhost:5000",
+                target: "https://inventory-manager-omega-two.vercel.app/",
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/auth/, ""),
             },
