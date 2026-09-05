@@ -9,7 +9,7 @@
         "api": {
             "root": "api/",
             "framework": "express",
-            "entrypoint": "dist/src/server.js"
+            "entrypoint": "src/server.js"
         }
     },
     "rewrites": [
