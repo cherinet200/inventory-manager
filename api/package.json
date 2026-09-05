@@ -4,7 +4,7 @@
     "description": "",
     "main": "dist/index.js",
     "scripts": {
-        "dev": "nodemon",
+        "start": "node dist/index.js",
         "build": "prisma generate && tsc && tsc -p tsconfig.emails.json",
         "email:dev": "email dev --dir src/emails",
         "test": "echo \"Error: no test specified\" && exit 1"
