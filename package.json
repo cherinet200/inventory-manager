@@ -1,4 +1,5 @@
 {
+    "private": true,
     "scripts": {
         "dev": "concurrently -n F,B -c green,blue \"npm run dev --prefix frontend\" \"npm run dev --prefix api\""
     },
