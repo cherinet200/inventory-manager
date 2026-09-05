@@ -12,6 +12,7 @@
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
+        "isolatedModules": true,
         "allowImportingTsExtensions": false,
         "forceConsistentCasingInFileNames": true,
 
