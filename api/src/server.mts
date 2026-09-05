@@ -1,6 +1,6 @@
+import { signIn, signUp } from "./handler/users.js";
 import express from "express";
 import dotenv from "dotenv";
-import { signIn, signUp } from "./handler/users.js";
 import { Authentication } from "./module/auth.js";
 import router from "./router.js";
 import cookieParser from "cookie-parser";
