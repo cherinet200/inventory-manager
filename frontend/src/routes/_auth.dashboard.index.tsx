@@ -349,7 +349,7 @@ const LowQuantityStock = () => {
                     )}
                 </div>
 
-                {lowQuantity.length > 1 && (
+                {lowQuantity.length > 0 && (
                     <div className="flex flex-col gap-4">
                         {lowQuantity.map((product, index) => (
                             <div
