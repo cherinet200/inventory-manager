@@ -14,7 +14,9 @@
         "resolveJsonModule": true,
         "isolatedModules": true,
         "noEmit": false,
-        "jsx": "react-jsx"
+        "jsx": "react-jsx",
+
+        "outDir": "./dist/emails"
     },
     "include": ["src/emails/**/*.tsx"],
     "exclude": []
