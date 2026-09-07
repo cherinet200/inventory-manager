@@ -36,20 +36,20 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/", (req, res) => {
+app.get("backend/", (req, res) => {
     res.json({ message: "Welcome to my inventory manager!" });
 });
 
-app.post("backend/auth/signup", signUp);
-app.post("backend/auth/signin", signIn);
+app.post("/auth/signup", signUp);
+app.post("/auth/signin", signIn);
 
-app.post("backend/auth/forgotPassword", forgotPassword);
-app.post("backend/auth/changePassword", changePassword);
+app.post("/auth/forgotPassword", forgotPassword);
+app.post("/auth/changePassword", changePassword);
 
-app.use("backend/api", Authentication, router);
+app.use("/api", Authentication, router);
 
 app.use(
-    "backend/webhooks/resend",
+    "/webhooks/resend",
     express.raw({ type: "application/json" }),
     resendWebhookRouter,
 );
