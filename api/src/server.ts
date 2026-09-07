@@ -18,6 +18,11 @@ const allowedOrigins = [
     "http://localhost:5173",
 ];
 
+app.use("/backend", (req, res, next) => {
+    req.url = req.url.replace(/^\/backend/, "");
+    next();
+});
+
 app.use(
     cors({
         origin: allowedOrigins,
@@ -38,10 +43,6 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
     res.json({ message: "Welcome to my inventory manager!" });
-});
-
-app.get("/backend", (req, res) => {
-    res.json({ message: "It is not the correct path!" });
 });
 
 app.post("/auth/signup", signUp);
