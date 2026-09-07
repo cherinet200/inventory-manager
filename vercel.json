@@ -25,6 +25,12 @@
             }
         },
         {
+            "source": "/api/:path*",
+            "destination": {
+                "service": "api"
+            }
+        },
+        {
             "source": "/:path*",
             "destination": {
                 "service": "frontend"

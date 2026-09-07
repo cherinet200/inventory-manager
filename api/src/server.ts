@@ -36,7 +36,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
-app.get("backend/", (req, res) => {
+app.get("/backend", (req, res) => {
     res.json({ message: "Welcome to my inventory manager!" });
 });
 
