@@ -4,7 +4,8 @@
         "frontend": {
             "root": "frontend/",
             "framework": "vite",
-            "outputDirectory": "dist"
+            "outputDirectory": "dist",
+            "destination": "/index.html"
         },
         "api": {
             "root": "api/",
@@ -33,8 +34,7 @@
         {
             "source": "/(.*)",
             "destination": {
-                "service": "frontend",
-                "path": "/index.html"
+                "service": "frontend"
             }
         }
     ]
