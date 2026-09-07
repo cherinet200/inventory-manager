@@ -123,7 +123,7 @@ export default function Dashboard() {
         fetchSalesOverview();
     }, []);
     return (
-        <div className="flex gap-8 m-8">
+        <div className="flex gap-8 m-10">
             <div className="flex flex-col w-[70%] gap-4">
                 {sales && <Overview overview={sales} view="Sales" />}
                 <Overview overview={purchase} view="Purchase" />
