@@ -5,7 +5,12 @@
             "root": "frontend/",
             "framework": "vite",
             "outputDirectory": "dist",
-            "destination": "/index.html"
+            "rewrites": [
+                {
+                    "source": "/(.*)",
+                    "destination": "/index.html"
+                }
+            ]
         },
         "api": {
             "root": "api/",
