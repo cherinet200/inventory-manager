@@ -18,11 +18,6 @@ const allowedOrigins = [
     "http://localhost:5173",
 ];
 
-app.use("/backend", (req, res, next) => {
-    req.url = req.url.replace(/^\/backend/, "");
-    next();
-});
-
 app.use(
     cors({
         origin: allowedOrigins,
@@ -45,16 +40,16 @@ app.get("/", (req, res) => {
     res.json({ message: "Welcome to my inventory manager!" });
 });
 
-app.post("/auth/signup", signUp);
-app.post("/auth/signin", signIn);
+app.post("backend/auth/signup", signUp);
+app.post("backend/auth/signin", signIn);
 
-app.post("/auth/forgotPassword", forgotPassword);
-app.post("/auth/changePassword", changePassword);
+app.post("backend/auth/forgotPassword", forgotPassword);
+app.post("backend/auth/changePassword", changePassword);
 
-app.use("/api", Authentication, router);
+app.use("backend/api", Authentication, router);
 
 app.use(
-    "/webhooks/resend",
+    "backend/webhooks/resend",
     express.raw({ type: "application/json" }),
     resendWebhookRouter,
 );
