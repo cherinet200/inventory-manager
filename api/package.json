@@ -2,9 +2,9 @@
     "name": "api",
     "version": "1.0.0",
     "description": "",
-    "main": "dist/index.mjs",
+    "main": "dist/index.js",
     "scripts": {
-        "start": "node dist/index.mjs",
+        "start": "node dist/index.js",
         "build": "prisma generate && tsc && tsc -p tsconfig.emails.json",
         "email:dev": "email dev --dir src/emails",
         "test": "echo \"Error: no test specified\" && exit 1"
