@@ -5,7 +5,7 @@
     "main": "dist/index.js",
     "scripts": {
         "start": "node dist/index.js",
-        "build": "prisma generate && tsc && tsc -p tsconfig.emails.json",
+        "build": "prisma generate && tsc && tsc -p tsconfig.emails.json && cp package.json dist/package.json",
         "email:dev": "email dev --dir src/emails",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
