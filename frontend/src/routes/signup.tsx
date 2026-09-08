@@ -3,6 +3,8 @@ import { useState } from "react";
 import brandLogo from "../assets/inventory.png";
 import { Link } from "@tanstack/react-router";
 import { Eye, EyeOff, Check } from "lucide-react";
+import VerifyCode from "../components/verifyCode";
+import AuthLayout, { FormLayout } from "../components/authLayout";
 
 export const Route = createFileRoute("/signup")({
     component: Signup,
@@ -15,6 +17,7 @@ function Signup() {
         "User already exists!",
     );
     const [showPassword, setShowPassword] = useState(false);
+    const [verification, setVerification] = useState(true);
     const [warningStyle, setWarningStyle] = useState({
         length: "",
         match: "",
@@ -150,7 +153,7 @@ function Signup() {
     };
 
     return (
-        <div className="flex justify-center items-center h-screen gap-100 dark:bg-gray-950">
+        <AuthLayout>
             {showMessage && (
                 <div className="fixed top-4 left-1/2 -translate-x-1/2 rounded text-green-600 px-8 py-4 shadow-lg border border-green-600">
                     User created successfully! You can sign in now.
@@ -161,197 +164,200 @@ function Signup() {
                     {warningMessage}
                 </div>
             )}
-            <div className="w-[20%] h-full hidden justify-center items-center lg:flex">
-                <img src={brandLogo} alt="Brand" />
-            </div>
-            <form
-                className="h-full w-120 flex justify-center items-center flex-col gap-8"
-                onSubmit={handleSubmit}
-            >
-                <div className="flex justify-center items-center flex-col gap-4">
-                    <img src={brandLogo} alt="Brand" width="60" height="60" />
-                    <h1 className="text-4xl font-semibold text-gray-900 dark:text-white">
-                        Create an account
-                    </h1>
-                    <p className="text-lg text-gray-400">
-                        Please enter your details to get started.
-                    </p>
-                </div>
-                <div className="w-full flex justify-center items-center flex-col gap-2">
-                    <div className="w-full">
-                        <label
-                            htmlFor="name"
-                            className="self-start text-base text-gray-600 dark:text-gray-300 font-medium"
-                        >
-                            Name*
-                        </label>
-                        <input
-                            type="name"
-                            name="name"
-                            id="name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            placeholder="Enter your name"
-                            className="w-full p-2.5 border border-gray-600 rounded-md text-base"
-                            required
-                        />
-                    </div>
-                    <div className="w-full">
-                        <label
-                            htmlFor="email"
-                            className="self-start text-base text-gray-600 dark:text-gray-300 font-medium"
-                        >
-                            Email*
-                        </label>
-                        <input
-                            type="email"
-                            name="email"
-                            id="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            placeholder="Enter your email"
-                            className="w-full p-2.5 border border-gray-600 rounded-md text-base"
-                            required
-                        />
-                    </div>
-                    <div className="w-full">
-                        <label
-                            htmlFor="password"
-                            className="self-start text-base text-gray-600 dark:text-gray-300 font-medium"
-                        >
-                            Password*
-                        </label>
-                        <div className="relative flex items-center cursor-pointer">
+            {verification ? (
+                <FormLayout
+                    onSubmit={handleSubmit}
+                    title="Enter Verification Code"
+                    subtitle="Please enter the verification code sent to your email."
+                >
+                    <VerifyCode />
+                </FormLayout>
+            ) : (
+                <FormLayout
+                    onSubmit={handleSubmit}
+                    title="Create an account"
+                    subtitle="Please enter your details to get started."
+                >
+                    <div className="w-full flex justify-center items-center flex-col gap-2">
+                        <div className="w-full">
+                            <label
+                                htmlFor="name"
+                                className="self-start text-base text-gray-600 dark:text-gray-300 font-medium"
+                            >
+                                Name*
+                            </label>
                             <input
-                                type={showPassword ? "text" : "password"}
-                                name="password"
-                                id="password"
-                                value={formData.password}
+                                type="name"
+                                name="name"
+                                id="name"
+                                value={formData.name}
                                 onChange={handleChange}
-                                placeholder="Enter your password"
-                                className="w-full p-2.5 border border-gray-200 dark:border-gray-600 rounded-md text-base"
+                                placeholder="Enter your name"
+                                className="w-full p-2.5 border border-gray-600 rounded-md text-base"
                                 required
                             />
-                            <div
-                                className="absolute right-2 text-gray-600 dark:text-gray-400"
-                                onClick={() => setShowPassword(!showPassword)}
-                            >
-                                {showPassword ? <EyeOff /> : <Eye />}
-                            </div>
                         </div>
-                    </div>
-                    <div className="w-full">
-                        <label
-                            htmlFor="cpassword"
-                            className="self-start text-base text-gray-600 dark:text-gray-300 font-medium"
-                        >
-                            Confirm Password*
-                        </label>
-                        <div className="relative flex items-center cursor-pointer">
+                        <div className="w-full">
+                            <label
+                                htmlFor="email"
+                                className="self-start text-base text-gray-600 dark:text-gray-300 font-medium"
+                            >
+                                Email*
+                            </label>
                             <input
-                                type={showPassword ? "text" : "password"}
-                                name="cPassword"
-                                id="cPassword"
-                                value={formData.cPassword}
+                                type="email"
+                                name="email"
+                                id="email"
+                                value={formData.email}
                                 onChange={handleChange}
-                                placeholder="Confirms your password"
-                                className="w-full p-2.5 border border-gray-200 dark:border-gray-600 rounded-md text-base"
+                                placeholder="Enter your email"
+                                className="w-full p-2.5 border border-gray-600 rounded-md text-base"
                                 required
                             />
-                            <div
-                                className="absolute right-2 text-gray-600 dark:text-gray-400"
-                                onClick={() => setShowPassword(!showPassword)}
+                        </div>
+                        <div className="w-full">
+                            <label
+                                htmlFor="password"
+                                className="self-start text-base text-gray-600 dark:text-gray-300 font-medium"
                             >
-                                {showPassword ? <EyeOff /> : <Eye />}
+                                Password*
+                            </label>
+                            <div className="relative flex items-center cursor-pointer">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    name="password"
+                                    id="password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    placeholder="Enter your password"
+                                    className="w-full p-2.5 border border-gray-200 dark:border-gray-600 rounded-md text-base"
+                                    required
+                                />
+                                <div
+                                    className="absolute right-2 text-gray-600 dark:text-gray-400"
+                                    onClick={() =>
+                                        setShowPassword(!showPassword)
+                                    }
+                                >
+                                    {showPassword ? <EyeOff /> : <Eye />}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div className="flex flex-col self-start p-2 pb-0">
-                        <div
-                            className={`text-gray-400 self-start flex items-center gap-1 ${warningStyle.email} ${warningStyle.emoving ? "animate-shake-right" : ""}`}
-                            onAnimationEnd={() =>
-                                setWarningStyle((prev) => ({
-                                    ...prev,
-                                    email: "text-gray-400",
-                                    emoving: false,
-                                }))
-                            }
-                        >
-                            <div className="flex items-center justify-center">
+                        <div className="w-full">
+                            <label
+                                htmlFor="cpassword"
+                                className="self-start text-base text-gray-600 dark:text-gray-300 font-medium"
+                            >
+                                Confirm Password*
+                            </label>
+                            <div className="relative flex items-center cursor-pointer">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    name="cPassword"
+                                    id="cPassword"
+                                    value={formData.cPassword}
+                                    onChange={handleChange}
+                                    placeholder="Confirms your password"
+                                    className="w-full p-2.5 border border-gray-200 dark:border-gray-600 rounded-md text-base"
+                                    required
+                                />
+                                <div
+                                    className="absolute right-2 text-gray-600 dark:text-gray-400"
+                                    onClick={() =>
+                                        setShowPassword(!showPassword)
+                                    }
+                                >
+                                    {showPassword ? <EyeOff /> : <Eye />}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex flex-col self-start p-2 pb-0">
+                            <div
+                                className={`text-gray-400 self-start flex items-center gap-1 ${warningStyle.email} ${warningStyle.emoving ? "animate-shake-right" : ""}`}
+                                onAnimationEnd={() =>
+                                    setWarningStyle((prev) => ({
+                                        ...prev,
+                                        email: "text-gray-400",
+                                        emoving: false,
+                                    }))
+                                }
+                            >
+                                <div className="flex items-center justify-center">
+                                    <div className="flex items-center justify-center gap-1">
+                                        <div className="flex items-center justify-center w-2.5 h-2.5 rounded-full border">
+                                            {warningStyle.email ===
+                                                "text-green-500" && (
+                                                <Check className="w-3 h-3 stroke-3" />
+                                            )}
+                                        </div>
+                                        Must be valid email.
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                className={`text-gray-400 self-start flex items-center gap-1 ${warningStyle.length} ${warningStyle.lmoving ? "animate-shake-right" : ""}`}
+                                onAnimationEnd={() =>
+                                    setWarningStyle((prev) => ({
+                                        ...prev,
+                                        length: "text-gray-400",
+                                        lmoving: false,
+                                    }))
+                                }
+                            >
                                 <div className="flex items-center justify-center gap-1">
                                     <div className="flex items-center justify-center w-2.5 h-2.5 rounded-full border">
-                                        {warningStyle.email ===
+                                        {warningStyle.length ===
                                             "text-green-500" && (
                                             <Check className="w-3 h-3 stroke-3" />
                                         )}
                                     </div>
-                                    Must be valid email.
+                                    Must be at least 8 characters.
                                 </div>
                             </div>
-                        </div>
-                        <div
-                            className={`text-gray-400 self-start flex items-center gap-1 ${warningStyle.length} ${warningStyle.lmoving ? "animate-shake-right" : ""}`}
-                            onAnimationEnd={() =>
-                                setWarningStyle((prev) => ({
-                                    ...prev,
-                                    length: "text-gray-400",
-                                    lmoving: false,
-                                }))
-                            }
-                        >
-                            <div className="flex items-center justify-center gap-1">
-                                <div className="flex items-center justify-center w-2.5 h-2.5 rounded-full border">
-                                    {warningStyle.length ===
-                                        "text-green-500" && (
-                                        <Check className="w-3 h-3 stroke-3" />
-                                    )}
-                                </div>
-                                Must be at least 8 characters.
-                            </div>
-                        </div>
-                        <div
-                            className={`text-gray-400 self-start flex items-center gap-1 ${warningStyle.match} ${warningStyle.mmoving ? "animate-shake-right" : ""}`}
-                            onAnimationEnd={() =>
-                                setWarningStyle((prev) => ({
-                                    ...prev,
-                                    match: "text-gray-400",
-                                    mmoving: false,
-                                }))
-                            }
-                        >
-                            <div className="flex items-center justify-center">
-                                <div className="flex items-center justify-center gap-1">
-                                    <div className="flex items-center justify-center w-2.5 h-2.5 rounded-full border">
-                                        {warningStyle.match ===
-                                            "text-green-500" && (
-                                            <Check className="w-3 h-3 stroke-3" />
-                                        )}
+                            <div
+                                className={`text-gray-400 self-start flex items-center gap-1 ${warningStyle.match} ${warningStyle.mmoving ? "animate-shake-right" : ""}`}
+                                onAnimationEnd={() =>
+                                    setWarningStyle((prev) => ({
+                                        ...prev,
+                                        match: "text-gray-400",
+                                        mmoving: false,
+                                    }))
+                                }
+                            >
+                                <div className="flex items-center justify-center">
+                                    <div className="flex items-center justify-center gap-1">
+                                        <div className="flex items-center justify-center w-2.5 h-2.5 rounded-full border">
+                                            {warningStyle.match ===
+                                                "text-green-500" && (
+                                                <Check className="w-3 h-3 stroke-3" />
+                                            )}
+                                        </div>
+                                        Passwords must match.
                                     </div>
-                                    Passwords must match.
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div className="w-full flex justify-center items-center flex-col gap-5">
-                    <button
-                        type="submit"
-                        className="text-lg text-white bg-blue-500 dark:bg-blue-600 font-normal cursor-pointer border-none rounded-md w-full p-2.5"
-                    >
-                        Get started
-                    </button>
-                    <div className="text-base text-gray-400 align-center">
-                        Already have an account?{" "}
-                        <Link
-                            to="/signin"
-                            className="text-base text-blue-500 self-end"
+                    <div className="w-full flex justify-center items-center flex-col gap-5">
+                        <button
+                            type="submit"
+                            className="text-lg text-white bg-blue-500 dark:bg-blue-600 font-normal cursor-pointer border-none rounded-md w-full p-2.5"
                         >
-                            Sign in
-                        </Link>
+                            Get started
+                        </button>
+                        <div className="text-base text-gray-400 align-center">
+                            Already have an account?{" "}
+                            <Link
+                                to="/signin"
+                                className="text-base text-blue-500 self-end"
+                            >
+                                Sign in
+                            </Link>
+                        </div>
                     </div>
-                </div>
-            </form>
-        </div>
+                </FormLayout>
+            )}
+        </AuthLayout>
     );
 }
 
