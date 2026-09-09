@@ -1,0 +1,83 @@
+import * as React from "react";
+import {
+    Html,
+    Head,
+    Body,
+    Preview,
+    Heading,
+    Container,
+    Text,
+    Button,
+    Tailwind,
+} from "react-email";
+
+const verificationEmail = ({
+    verificationNumber,
+}: {
+    verificationNumber: number;
+}) => {
+    const imagePath = "https://i.postimg.cc/fbRKcWFw/inventory.png";
+
+    return (
+        <Tailwind>
+            <Html lang="en">
+                <Head />
+
+                <Preview>Inventory Manager Signup</Preview>
+
+                <Body className="flex flex-col justify-center items-center m-0">
+                    <Container>
+                        <div className="m-0 mx-auto bg-gray-100 p-10 text-lg font-sans max-w-xl flex justify-center items-center text center">
+                            <div className="mx-auto max-w-xl bg-white shadow-2xl p-10 flex justify-center items-center">
+                                <div className="max-w-xl">
+                                    <Heading className="text-2xl font-bold text-center font-playfair">
+                                        <div>
+                                            <div className="flex items-center w-full px-9 py-4">
+                                                <img
+                                                    src={imagePath}
+                                                    alt="Logo"
+                                                    width="70"
+                                                    height="70"
+                                                />
+                                                <h2 className="font-playfair text-2xl text-blue-500 dark:text-blue-600 font-bold">
+                                                    INVENTORY MANAGER
+                                                </h2>
+                                            </div>
+                                            Verification Email
+                                        </div>
+                                    </Heading>
+
+                                    <Text className="text-gray-600">
+                                        You code is:
+                                    </Text>
+
+                                    <Text className="text-black text-2xl bg-white">
+                                        {verificationNumber}
+                                    </Text>
+
+                                    <Text className="text-sm">
+                                        This code will expire in 10 minutes
+                                    </Text>
+
+                                    <Text className="text-sm">
+                                        If you didn't request a sign up, you can
+                                        safely ignore this email.
+                                    </Text>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex gap-1 items-center justify-center text-gray-500 mt-4">
+                            <span className="w-[32.9%]"></span>
+                            <span className="text-center">
+                                © 2026 Inventory Manager
+                            </span>
+                            <span className="w-[32.9%]"></span>
+                        </div>
+                    </Container>
+                </Body>
+            </Html>
+        </Tailwind>
+    );
+};
+
+export default verificationEmail;
