@@ -3,7 +3,7 @@ import { useState } from "react";
 import brandLogo from "../assets/inventory.png";
 import { Link } from "@tanstack/react-router";
 import { Eye, EyeOff, Check } from "lucide-react";
-import VerifyCode from "../components/verifyCode";
+import VerifyCode, { handleVerification } from "../components/verificationCode";
 import AuthLayout, { FormLayout } from "../components/authLayout";
 
 export const Route = createFileRoute("/signup")({
@@ -17,7 +17,7 @@ function Signup() {
         "User already exists!",
     );
     const [showPassword, setShowPassword] = useState(false);
-    const [verification, setVerification] = useState(true);
+    const [verification, setVerification] = useState(false);
     const [warningStyle, setWarningStyle] = useState({
         length: "",
         match: "",
@@ -135,10 +135,14 @@ function Signup() {
             });
             const response = await res.json();
 
-            if (response.success) {
-                setShowMessage(true);
+            // if (response.success) {
+            //     setShowMessage(true);
 
-                window.location.href = "/signin";
+            //     window.location.href = "/signin";
+            // }
+
+            if (response.success) {
+                setVerification(true);
             }
 
             if (response.message === "User already exists") {
@@ -166,11 +170,13 @@ function Signup() {
             )}
             {verification ? (
                 <FormLayout
-                    onSubmit={handleSubmit}
+                    onSubmit={async (e) => {
+                        e.preventDefault();
+                    }}
                     title="Enter Verification Code"
                     subtitle="Please enter the verification code sent to your email."
                 >
-                    <VerifyCode />
+                    <VerifyCode data={formData} />
                 </FormLayout>
             ) : (
                 <FormLayout
