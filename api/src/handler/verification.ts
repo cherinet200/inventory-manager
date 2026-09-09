@@ -5,13 +5,9 @@ import verificationEmail from "../emails/verificationEmail.js";
 import { Request, Response } from "express";
 import { createUser } from "./users.js";
 
-export const sendVerificationEmail = async (req: Request, res: Response) => {
-    const body = req.body;
-    if (!body)
-        return res.status(400).json({ message: "Request body is missing!" });
-
-    if (typeof body.email !== "string")
-        return res.status(400).json({ message: "Email is missing!" });
+export const sendVerificationEmail = async ({ email }: { email: string }) => {
+    if (typeof email !== "string")
+        return { success: false, message: "Email is missing!" };
 
     const verificationNumber = crypto.randomInt(100000, 1000000);
 
@@ -26,17 +22,19 @@ export const sendVerificationEmail = async (req: Request, res: Response) => {
         data: {
             numberHash: hashNumber,
             expiresAt,
-            user: body.email,
+            user: email,
         },
     });
 
     await sendMail({
-        to: body.email,
+        to: email,
         subject: "Sign up request",
         react: verificationEmail({
             verificationNumber,
         }),
     });
+
+    return { success: true, message: "Sent you a verification code!" };
 };
 
 export const handleCodeVerification = async (req: Request, res: Response) => {

@@ -9,6 +9,7 @@ import {
 } from "../module/auth.js";
 import sendMail from "./email.js";
 import newLogin from "../emails/newLogin.js";
+import { sendVerificationEmail } from "./verification.js";
 
 export const signUp = async (req: Request, res: Response) => {
     const user = await prisma.user.findUnique({
@@ -24,6 +25,8 @@ export const signUp = async (req: Request, res: Response) => {
     }
 
     if (!user) {
+        const response = await sendVerificationEmail({ email: req.body.email });
+        return res.json(response);
     }
 };
 
