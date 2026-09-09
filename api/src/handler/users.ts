@@ -24,25 +24,36 @@ export const signUp = async (req: Request, res: Response) => {
     }
 
     if (!user) {
-        const newUser = await prisma.user.create({
-            data: {
-                name: req.body.name,
-                email: req.body.email,
-                password: await hashPassword(req.body.password),
-            },
-        });
-
-        sendMail({
-            to: process.env.ADMIN_EMAIL!,
-            subject: "New User",
-            react: newLogin(newUser),
-        });
-
-        return res.status(201).json({
-            success: true,
-            message: "User created successfully! Enjoy our services.",
-        });
     }
+};
+
+export const createUser = async ({
+    name,
+    email,
+    password,
+}: {
+    name: string;
+    email: string;
+    password: string;
+}) => {
+    const newUser = await prisma.user.create({
+        data: {
+            name: name,
+            email: email,
+            password: await hashPassword(password),
+        },
+    });
+
+    sendMail({
+        to: process.env.ADMIN_EMAIL!,
+        subject: "New User",
+        react: newLogin(newUser),
+    });
+
+    return {
+        success: true,
+        message: "User created successfully! Enjoy our services.",
+    };
 };
 
 export const signIn = async (req: Request, res: Response) => {

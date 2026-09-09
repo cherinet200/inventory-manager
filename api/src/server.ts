@@ -8,6 +8,7 @@ import cors from "cors";
 import { forgotPassword, changePassword } from "./handler/resetPassword.js";
 import resendWebhook from "./services/resendWebHook.js";
 import resendWebhookRouter from "./services/resendWebHook.js";
+import { sendVerificationEmail } from "./handler/verification.js";
 
 dotenv.config();
 
@@ -43,6 +44,7 @@ app.get("/backend", (req, res) => {
 app.post("/auth/signup", signUp);
 app.post("/auth/signin", signIn);
 
+app.post("/auth/emailVerification", sendVerificationEmail);
 app.post("/auth/forgotPassword", forgotPassword);
 app.post("/auth/changePassword", changePassword);
 
