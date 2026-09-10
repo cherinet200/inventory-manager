@@ -28,7 +28,7 @@ app.use(
 );
 
 app.use(
-    "/webhooks/resend",
+    "auth/webhooks/resend",
     express.raw({ type: "application/json" }),
     resendWebhook,
 );
