@@ -6,18 +6,15 @@ import router from "./router.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { forgotPassword, changePassword } from "./handler/resetPassword.js";
-import resendWebhook from "./services/resendWebHook.js";
 import resendWebhookRouter from "./services/resendWebHook.js";
 import { handleCodeVerification } from "./handler/verification.js";
+import prisma from "./db.js";
 
 dotenv.config();
 
 const app = express();
 
-const allowedOrigins = [
-    "https://inventory-manager-omega-two.vercel.app",
-    "http://localhost:5173",
-];
+const allowedOrigins = ["http://localhost:5173"];
 
 app.use(
     cors({
@@ -28,9 +25,9 @@ app.use(
 );
 
 app.use(
-    "auth/webhooks/resend",
+    "/auth/webhooks/resend",
     express.raw({ type: "application/json" }),
-    resendWebhook,
+    resendWebhookRouter,
 );
 
 app.use(express.json());
@@ -49,11 +46,5 @@ app.post("/auth/forgotPassword", forgotPassword);
 app.post("/auth/changePassword", changePassword);
 
 app.use("/api", Authentication, router);
-
-app.use(
-    "/webhooks/resend",
-    express.raw({ type: "application/json" }),
-    resendWebhookRouter,
-);
 
 export default app;
