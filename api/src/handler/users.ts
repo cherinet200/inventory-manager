@@ -11,10 +11,52 @@ import sendMail from "./email.js";
 import newLogin from "../emails/newLogin.js";
 import { sendVerificationEmail } from "./verification.js";
 
+type DbUser = {
+    id: string;
+    name: string;
+    email: string;
+    password: string;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+type Token = {
+    accessToken: string;
+    refreshToken: string;
+};
+
+function isValidEmail(email: string): boolean {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+}
+
 export const signUp = async (req: Request, res: Response) => {
+    if (!req.body)
+        return res.status(400).json({ message: "Request body is missing!" });
+
+    const { name, password } = req.body;
+    const email = req.body.email.trim().toLowerCase();
+
+    if (
+        typeof name !== "string" ||
+        typeof email !== "string" ||
+        typeof password !== "string"
+    )
+        return res.status(400).json({
+            message: "Invalid inputs!",
+            description: "Input must contain username, email and password!",
+        });
+
+    if (!isValidEmail(email)) {
+        return res.status(400).json({
+            message: "Invalid email!",
+            description: "Please provide a valid email!",
+        });
+    }
+
     const user = await prisma.user.findUnique({
         where: {
-            email: req.body.email,
+            email,
         },
     });
 
@@ -25,7 +67,22 @@ export const signUp = async (req: Request, res: Response) => {
     }
 
     if (!user) {
-        const response = await sendVerificationEmail({ email: req.body.email });
+        let response;
+
+        try {
+            response = await sendVerificationEmail({
+                name,
+                email,
+                password,
+            });
+        } catch (error) {
+            console.log(error);
+
+            return res.status(500).json({
+                success: false,
+                message: "Error sending verification email",
+            });
+        }
         return res.json(response);
     }
 };
@@ -34,16 +91,26 @@ export const createUser = async ({
     name,
     email,
     password,
+    hashed,
 }: {
     name: string;
     email: string;
     password: string;
+    hashed?: boolean;
 }) => {
+    let hashedPassword: string;
+
+    if (!hashed) {
+        hashedPassword = await hashPassword(password);
+    } else {
+        hashedPassword = password;
+    }
+
     const newUser = await prisma.user.create({
         data: {
             name: name,
             email: email,
-            password: await hashPassword(password),
+            password: hashedPassword,
         },
     });
 
@@ -53,31 +120,54 @@ export const createUser = async ({
         react: newLogin(newUser),
     });
 
-    return {
-        success: true,
-        message: "User created successfully! Enjoy our services.",
-    };
+    return newUser;
 };
 
-export const signIn = async (req: Request, res: Response) => {
+export const signInFunction = async ({
+    email,
+    password,
+    hashed,
+}: {
+    email: string;
+    password: string;
+    hashed?: boolean;
+}): Promise<{
+    dbUser: DbUser | null;
+    token: Token | null;
+    error?: string;
+}> => {
     const dbUser = await prisma.user.findUnique({
         where: {
-            email: req.body.email,
+            email,
         },
     });
 
     const DUMMY_HASH = await bcrypt.hash(process.env.DUMMY_PASSWORD!, 12);
     const hash = dbUser?.password ?? DUMMY_HASH;
 
-    const correctPassword = await checkPassword(req.body.password, hash);
+    let correctPassword;
+
+    if (!hashed) correctPassword = await checkPassword(password, hash);
+    else if (hashed) correctPassword = hash === password;
 
     if (!dbUser || !correctPassword) {
-        return res
-            .status(401)
-            .json({ success: false, message: "Invalid credentials!" });
+        return { dbUser: null, token: null, error: "Invalid credentials!" };
     }
 
     const token = createJwt(dbUser);
+
+    return { dbUser, token };
+};
+
+export const signIn = async (req: Request, res: Response) => {
+    const email = req.body.email.trim().toLowerCase();
+    const password = req.body.password;
+
+    const { dbUser, token, error } = await signInFunction({ email, password });
+
+    if (error || !dbUser || !token) {
+        return res.status(401).json({ success: false, message: error });
+    }
 
     res.cookie(
         "user",
