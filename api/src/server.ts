@@ -8,7 +8,6 @@ import cors from "cors";
 import { forgotPassword, changePassword } from "./handler/resetPassword.js";
 import resendWebhookRouter from "./services/resendWebHook.js";
 import { handleCodeVerification } from "./handler/verification.js";
-import prisma from "./db.js";
 
 dotenv.config();
 
