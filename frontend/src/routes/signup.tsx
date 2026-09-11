@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import brandLogo from "../assets/inventory.png";
 import { Link } from "@tanstack/react-router";
 import { Eye, EyeOff, Check } from "lucide-react";
@@ -13,11 +13,14 @@ export const Route = createFileRoute("/signup")({
 function Signup() {
     const [showMessage, setShowMessage] = useState(false);
     const [showWarning, setShowWarning] = useState(false);
+    const [signUpId, setSignUpId] = useState<string | null>(null);
+    const passwordRef = useRef<(HTMLInputElement | null)[]>([]);
     const [warningMessage, setWarningMessage] = useState(
         "User already exists!",
     );
     const [showPassword, setShowPassword] = useState(false);
     const [verification, setVerification] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [warningStyle, setWarningStyle] = useState({
         length: "",
         match: "",
@@ -47,6 +50,9 @@ function Signup() {
             value: string;
         };
 
+        const password = passwordRef.current[1]?.value;
+        const cpassword = passwordRef.current[2]?.value;
+
         // Change the form data
         setFormData((preData) => ({
             ...preData,
@@ -69,34 +75,21 @@ function Signup() {
             : undefined;
 
         // Match
-        name === "password"
-            ? value.length > 0 &&
-              formData.cPassword.length > 0 &&
-              (value === formData.cPassword
-                  ? setWarningStyle((prev) => ({
-                        ...prev,
-                        match: "text-green-500",
-                        mmoving: false,
-                    }))
-                  : setWarningStyle((prev) => ({
-                        ...prev,
-                        match: "text-gray-400",
-                        mmoving: false,
-                    })))
-            : name === "cPassword" &&
-              value.length > 0 &&
-              formData.password.length > 0 &&
-              (value === formData.password
-                  ? setWarningStyle((prev) => ({
-                        ...prev,
-                        match: "text-green-500",
-                        mmoving: false,
-                    }))
-                  : setWarningStyle((prev) => ({
-                        ...prev,
-                        match: "text-gray-400",
-                        mmoving: false,
-                    })));
+        password &&
+            cpassword &&
+            password?.length > 0 &&
+            cpassword?.length > 0 &&
+            (password === cpassword
+                ? setWarningStyle((prev) => ({
+                      ...prev,
+                      match: "text-green-500",
+                      mmoving: false,
+                  }))
+                : setWarningStyle((prev) => ({
+                      ...prev,
+                      match: "text-gray-400",
+                      mmoving: false,
+                  })));
 
         // Valid email
 
@@ -116,12 +109,17 @@ function Signup() {
 
     const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const password = "c";
-        const cpassword = "c";
+
+        setIsLoading(true);
+
+        const password = passwordRef.current[1]?.value;
+        const cpassword = passwordRef.current[2]?.value;
 
         if (!isValidEmail(formData.email)) {
+            setIsLoading(false);
+            return;
         }
-        if (password === cpassword) {
+        if (password === cpassword && password!.length >= 8) {
             const res = await fetch("/auth/signup", {
                 method: "POST",
                 headers: {
@@ -135,24 +133,54 @@ function Signup() {
             });
             const response = await res.json();
 
-            // if (response.success) {
-            //     setShowMessage(true);
-
-            //     window.location.href = "/signin";
-            // }
-
             if (response.success) {
+                setSignUpId(response.id);
                 setVerification(true);
+            } else {
+                setWarningMessage(response.message);
+                setShowWarning(true);
+                setTimeout(() => {
+                    setShowWarning(false);
+                }, 5000);
+                setVerification(false);
             }
 
-            if (response.message === "User already exists") {
+            if (res.status === 400 || res.status === 500) {
                 setWarningMessage(response.message);
                 setShowWarning(true);
                 setTimeout(() => {
                     setShowWarning(false);
                 }, 5000);
             }
+            setIsLoading(false);
         } else {
+            password!.length > 0 &&
+                cpassword!.length > 0 &&
+                (password === cpassword
+                    ? setWarningStyle((prev) => ({
+                          ...prev,
+                          match: "text-green-500",
+                          mmoving: false,
+                      }))
+                    : setWarningStyle((prev) => ({
+                          ...prev,
+                          match: "text-red-600",
+                          mmoving: true,
+                      })));
+
+            password!.length >= 8
+                ? setWarningStyle((prev) => ({
+                      ...prev,
+                      length: "text-green-500",
+                      lmoving: false,
+                  }))
+                : setWarningStyle((prev) => ({
+                      ...prev,
+                      length: "text-red-600",
+                      lmoving: true,
+                  }));
+            setIsLoading(false);
+            return;
         }
     };
 
@@ -169,15 +197,20 @@ function Signup() {
                 </div>
             )}
             {verification ? (
-                <FormLayout
-                    onSubmit={async (e) => {
-                        e.preventDefault();
-                    }}
-                    title="Enter Verification Code"
-                    subtitle="Please enter the verification code sent to your email."
-                >
-                    <VerifyCode data={formData} />
-                </FormLayout>
+                signUpId && (
+                    <FormLayout
+                        onSubmit={async (e) => {
+                            e.preventDefault();
+                        }}
+                        title="Enter Verification Code"
+                        subtitle="Please enter the verification code sent to your email."
+                    >
+                        <VerifyCode
+                            id={signUpId}
+                            setShowMessage={setShowMessage}
+                        />
+                    </FormLayout>
+                )
             ) : (
                 <FormLayout
                     onSubmit={handleSubmit}
@@ -200,6 +233,7 @@ function Signup() {
                                 onChange={handleChange}
                                 placeholder="Enter your name"
                                 className="w-full p-2.5 border border-gray-600 rounded-md text-base"
+                                autoFocus
                                 required
                             />
                         </div>
@@ -233,6 +267,9 @@ function Signup() {
                                     type={showPassword ? "text" : "password"}
                                     name="password"
                                     id="password"
+                                    ref={(element) => {
+                                        passwordRef.current[1] = element;
+                                    }}
                                     value={formData.password}
                                     onChange={handleChange}
                                     placeholder="Enter your password"
@@ -261,6 +298,9 @@ function Signup() {
                                     type={showPassword ? "text" : "password"}
                                     name="cPassword"
                                     id="cPassword"
+                                    ref={(element) => {
+                                        passwordRef.current[2] = element;
+                                    }}
                                     value={formData.cPassword}
                                     onChange={handleChange}
                                     placeholder="Confirms your password"
@@ -347,9 +387,19 @@ function Signup() {
                     <div className="w-full flex justify-center items-center flex-col gap-5">
                         <button
                             type="submit"
-                            className="text-lg text-white bg-blue-500 dark:bg-blue-600 font-normal cursor-pointer border-none rounded-md w-full p-2.5"
+                            className={`text-lg flex justify-center gap-4 text-white bg-blue-500 dark:bg-blue-600 font-normal ${!isLoading ? "cursor-pointer" : "cursor-wait"} border-none rounded-md w-full p-2.5`}
+                            disabled={isLoading}
                         >
-                            Get started
+                            {isLoading ? "Creating an account" : "Get started "}
+                            {isLoading && (
+                                <div className="flex justify-center gap-4">
+                                    <div className="flex items-center gap-1.5">
+                                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gray-300 [animation-delay:-0.3s] [animation-duration:1s]" />
+                                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gray-300 [animation-delay:-1.5s] [animation-duration:1s]" />
+                                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gray-300 [animation-duration:1s]" />
+                                    </div>
+                                </div>
+                            )}
                         </button>
                         <div className="text-base text-gray-400 align-center">
                             Already have an account?{" "}
