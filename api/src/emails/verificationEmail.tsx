@@ -51,7 +51,7 @@ const verificationEmail = ({
                                         You code is:
                                     </Text>
 
-                                    <Text className="text-black text-2xl bg-white">
+                                    <Text className="text-black text-2xl bg-white text-center font-bold p-2 rounded-md border border-gray-300">
                                         {verificationNumber}
                                     </Text>
 
