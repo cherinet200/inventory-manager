@@ -4,17 +4,34 @@ import prisma from "../db.js";
 import jwt from "jsonwebtoken";
 import type { JwtPayload, SignOptions } from "jsonwebtoken";
 import type { NextFunction, Request, Response } from "express";
-import { randomUUID } from "crypto";
 import { clearAuthCookies } from "../handler/users.js";
 
 dotenv.config();
 
-interface TokenPayload {
+interface JWT {
     id: string;
 }
-interface jwt {
-    id: string;
+
+interface AuthResult {
+    accessToken: string;
+    refreshToken: string;
+    userId: string;
 }
+
+interface RecentRefresh {
+    result: AuthResult;
+    expiresAt: number;
+}
+
+const RECENT_REFRESH_T = 5_000;
+
+const onGoingRefresh = new Map<string, Promise<AuthResult>>();
+const recentRefresh = new Map<string, RecentRefresh>();
+
+let onGoingRefreshMap: Promise<void | Response<
+    any,
+    Record<string, any>
+>> | null = null;
 
 export const hashPassword = async (password: string) =>
     await bcrypt.hash(password, 10);
@@ -22,66 +39,14 @@ export const hashPassword = async (password: string) =>
 export const checkPassword = async (pass: string, hashedPass: string) =>
     await bcrypt.compare(pass, hashedPass);
 
-export const createJwt = (user: jwt) => {
+export const createJwt = async (user: JWT) => {
     const payload = {
         id: user.id,
-        jti: randomUUID(),
     };
     const accessToken = generateToken(payload, "15m");
     const refreshToken = generateToken(payload, "7d");
-    saveRefreshToken(refreshToken, user.id);
+    await saveRefreshToken(refreshToken, user.id);
     return { accessToken: accessToken, refreshToken: refreshToken };
-};
-
-const handleTokenRefresh = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-) => {
-    const token = req.cookies.refreshToken;
-
-    if (!token) {
-        return clearAuthCookies(res);
-    }
-    try {
-        const user = jwt.verify(
-            token,
-            process.env.REFRESH_SECRET!,
-        ) as TokenPayload;
-
-        const isValid = await prisma.refreshToken.findUnique({
-            where: {
-                token: token,
-            },
-        });
-
-        if (isValid && !isValid.revokedAt) {
-            const accessToken = generateToken({ id: user.id }, "15m");
-            const refreshToken = generateToken(
-                { id: user.id, jti: randomUUID() },
-                "7d",
-            );
-            await saveRefreshToken(refreshToken, user.id, isValid?.id);
-
-            res.cookie("refreshToken", refreshToken, {
-                httpOnly: true,
-                secure: true,
-                sameSite: "strict",
-            }).cookie("accessToken", accessToken, {
-                httpOnly: true,
-                secure: true,
-                sameSite: "strict",
-            });
-
-            req.user = { id: user.id };
-
-            return next();
-        } else {
-            return res.json({ shouldRefresh: true });
-        }
-    } catch (err) {
-        return clearAuthCookies(res);
-    }
 };
 
 const generateToken = (payload: object, expiry: SignOptions["expiresIn"]) => {
@@ -118,15 +83,84 @@ const saveRefreshToken = async (token: string, id: string, stored?: number) => {
           });
 };
 
-export const deleteRefreshToken = async (id: string) => {
-    await prisma.refreshToken.deleteMany({
-        where: {
-            userId: id,
+const performRefresh = async (refreshToken: string): Promise<AuthResult> => {
+    const refreshClaims = jwt.verify(
+        refreshToken,
+        process.env.REFRESH_SECRET!,
+        {
+            algorithms: ["HS256"],
         },
+    ) as JwtPayload & { id: string };
+
+    const storedToken = await prisma.refreshToken.findFirst({
+        where: {
+            token: refreshToken,
+            userId: refreshClaims.id,
+            revokedAt: null,
+        },
+    });
+
+    if (!refreshClaims.id || !storedToken) {
+        throw new Error("Invalid refresh token!");
+    }
+
+    const accessToken = generateToken({ id: refreshClaims.id }, "15m");
+    const newRefreshToken = generateToken({ id: refreshClaims.id }, "7d");
+    await saveRefreshToken(newRefreshToken, refreshClaims.id, storedToken.id);
+
+    return {
+        accessToken,
+        refreshToken: newRefreshToken,
+        userId: refreshClaims.id,
+    };
+};
+
+const refreshForUser = (
+    refreshToken: string,
+    userId: string,
+): Promise<AuthResult> => {
+    const existingRefresh = onGoingRefresh.get(userId);
+
+    if (existingRefresh) {
+        return existingRefresh;
+    }
+
+    const refreshPromise = performRefresh(refreshToken)
+        .then((result) => {
+            recentRefresh.set(userId, {
+                result,
+                expiresAt: Date.now() + RECENT_REFRESH_T,
+            });
+
+            return result;
+        })
+        .finally(() => {
+            onGoingRefresh.delete(userId);
+        });
+
+    onGoingRefresh.set(userId, refreshPromise);
+
+    return refreshPromise;
+};
+
+const setAuthCookies = (
+    res: Response,
+    accessToken: string,
+    refreshToken: string,
+) => {
+    res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+    });
+    res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
     });
 };
 
-export const Authentication = (
+export const Authentication = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -137,10 +171,58 @@ export const Authentication = (
         const claims = jwt.verify(token, process.env.JWT_SECRET!, {
             algorithms: ["HS256"],
         }) as JwtPayload & { id: string };
+
         req.user = { id: claims.id };
 
         next();
     } catch (err) {
-        return handleTokenRefresh(req, res, next);
+        const refreshToken = req.cookies.refreshToken;
+
+        if (err instanceof jwt.TokenExpiredError) {
+            const refreshClaims = jwt.verify(
+                refreshToken,
+                process.env.REFRESH_SECRET!,
+                {
+                    algorithms: ["HS256"],
+                },
+            ) as JwtPayload & { id: string };
+
+            if (!refreshClaims.id) {
+                return clearAuthCookies(res);
+            }
+
+            const userId = refreshClaims.id;
+
+            const recent = recentRefresh.get(userId);
+
+            let result: AuthResult;
+
+            if (recent && recent.expiresAt > Date.now()) {
+                result = recent.result;
+            } else {
+                recentRefresh.delete(userId);
+
+                result = await refreshForUser(refreshToken, userId);
+            }
+
+            setAuthCookies(res, result.accessToken, result.refreshToken);
+
+            req.user = { id: result.userId };
+
+            return next();
+        } else {
+            if (req.cookies.refreshToken) {
+            } else {
+                return clearAuthCookies(res);
+            }
+        }
     }
+};
+
+export const deleteRefreshToken = async (id: string) => {
+    await prisma.refreshToken.deleteMany({
+        where: {
+            userId: id,
+        },
+    });
 };
