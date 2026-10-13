@@ -154,7 +154,7 @@ export const signInFunction = async ({
         return { dbUser: null, token: null, error: "Invalid credentials!" };
     }
 
-    const token = createJwt(dbUser);
+    const token = await createJwt(dbUser);
 
     return { dbUser, token };
 };
@@ -207,7 +207,7 @@ export const clearAuthCookies = (res: Response) => {
             secure: true,
             sameSite: "strict",
         });
-    res.json({ shouldRefresh: true });
+    res.json({ success: true, message: "Logged out successfully!" });
 };
 
 export const logOut = async (req: Request, res: Response) => {
