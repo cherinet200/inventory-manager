@@ -1,6 +1,8 @@
 import { ReactNode } from "react";
+import { render } from "react-email";
 import { Resend } from "resend";
 import prisma from "../db.js";
+import nodemailer from "nodemailer";
 
 interface SendMailOptions {
     to: string;
@@ -8,31 +10,25 @@ interface SendMailOptions {
     react: ReactNode;
 }
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT ?? 587,
+    secure: process.env.SMTP_SECURE === "true",
+    auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+    },
+});
 
 const sendMail = async ({ to, subject, react }: SendMailOptions) => {
-    const { data, error } = await resend.emails.send({
-        from: `"Inventory Manager" <${process.env.EMAIL_FROM}>`,
-        to: [to],
+    const html = await render(react);
+
+    transporter.sendMail({
+        from: `"Inventory Manager" <${process.env.SMTP_FROM}`,
+        to,
         subject,
-        react,
+        html,
     });
-
-    if (error) {
-        console.log(error);
-        throw error;
-    }
-
-    await prisma.email.create({
-        data: {
-            resendId: data.id,
-            recipient: to,
-            subject: subject,
-            status: "sent",
-        },
-    });
-
-    return data;
 };
 
 export default sendMail;
