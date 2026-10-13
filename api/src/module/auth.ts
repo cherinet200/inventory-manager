@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import prisma from "../db.js";
@@ -28,11 +29,6 @@ const RECENT_REFRESH_T = 5_000;
 const onGoingRefresh = new Map<string, Promise<AuthResult>>();
 const recentRefresh = new Map<string, RecentRefresh>();
 
-let onGoingRefreshMap: Promise<void | Response<
-    any,
-    Record<string, any>
->> | null = null;
-
 export const hashPassword = async (password: string) =>
     await bcrypt.hash(password, 10);
 
@@ -45,17 +41,28 @@ export const createJwt = async (user: JWT) => {
     };
     const accessToken = generateToken(payload, "15m");
     const refreshToken = generateToken(payload, "7d");
-    await saveRefreshToken(refreshToken, user.id);
+    const hashToken = crypto
+        .createHash("sha256")
+        .update(refreshToken)
+        .digest("hex");
+    await saveRefreshToken(hashToken, user.id);
     return { accessToken: accessToken, refreshToken: refreshToken };
+};
+
+const generateRefreshToken = () => {
+    const rawToken = crypto.randomBytes(32).toString("hex");
+
+    return rawToken;
 };
 
 const generateToken = (payload: object, expiry: SignOptions["expiresIn"]) => {
     return expiry === "15m"
-        ? jwt.sign(payload, process.env.JWT_SECRET!, { expiresIn: expiry })
-        : jwt.sign(payload, process.env.REFRESH_SECRET!, { expiresIn: expiry });
+        ? jwt.sign(payload, process.env.JWT_SECRET!, { expiresIn: "15s" })
+        : generateRefreshToken();
 };
 
 const saveRefreshToken = async (token: string, id: string, stored?: number) => {
+    const refreshToken = token;
     stored
         ? await prisma.$transaction([
               prisma.refreshToken.update({
@@ -68,50 +75,55 @@ const saveRefreshToken = async (token: string, id: string, stored?: number) => {
               }),
               prisma.refreshToken.create({
                   data: {
-                      token: token,
+                      token: refreshToken,
                       userId: id,
                       revokedAt: null,
+                      expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000,
                   },
               }),
           ])
         : await prisma.refreshToken.create({
               data: {
-                  token: token,
+                  token: refreshToken,
                   userId: id,
                   revokedAt: null,
+                  expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000,
               },
           });
 };
 
 const performRefresh = async (refreshToken: string): Promise<AuthResult> => {
-    const refreshClaims = jwt.verify(
-        refreshToken,
-        process.env.REFRESH_SECRET!,
-        {
-            algorithms: ["HS256"],
-        },
-    ) as JwtPayload & { id: string };
+    const refreshTokenHash = crypto
+        .createHash("sha256")
+        .update(refreshToken)
+        .digest("hex");
 
-    const storedToken = await prisma.refreshToken.findFirst({
+    const refreshClaims = await prisma.refreshToken.findFirst({
         where: {
-            token: refreshToken,
-            userId: refreshClaims.id,
+            token: refreshTokenHash,
+            expiresAt: {
+                gt: Date.now(),
+            },
             revokedAt: null,
         },
     });
 
-    if (!refreshClaims.id || !storedToken) {
+    if (!refreshClaims) {
         throw new Error("Invalid refresh token!");
     }
 
-    const accessToken = generateToken({ id: refreshClaims.id }, "15m");
-    const newRefreshToken = generateToken({ id: refreshClaims.id }, "7d");
-    await saveRefreshToken(newRefreshToken, refreshClaims.id, storedToken.id);
+    const accessToken = generateToken({ id: refreshClaims.userId }, "15m");
+    const newRefreshToken = generateToken({ id: refreshClaims.userId }, "7d");
+    const hashToken = crypto
+        .createHash("sha256")
+        .update(newRefreshToken)
+        .digest("hex");
+    await saveRefreshToken(hashToken, refreshClaims.userId);
 
     return {
         accessToken,
         refreshToken: newRefreshToken,
-        userId: refreshClaims.id,
+        userId: refreshClaims.userId,
     };
 };
 
@@ -177,21 +189,25 @@ export const Authentication = async (
         next();
     } catch (err) {
         const refreshToken = req.cookies.refreshToken;
+        const refreshTokenHash = crypto
+            .createHash("sha256")
+            .update(refreshToken)
+            .digest("hex");
 
         if (err instanceof jwt.TokenExpiredError) {
-            const refreshClaims = jwt.verify(
-                refreshToken,
-                process.env.REFRESH_SECRET!,
-                {
-                    algorithms: ["HS256"],
+            const refreshClaims = await prisma.refreshToken.findFirst({
+                where: {
+                    token: refreshTokenHash,
                 },
-            ) as JwtPayload & { id: string };
+            });
 
-            if (!refreshClaims.id) {
+            console.log("Refresh claims: ", refreshClaims);
+
+            if (!refreshClaims || !refreshClaims?.userId) {
                 return clearAuthCookies(res);
             }
 
-            const userId = refreshClaims.id;
+            const userId = refreshClaims.userId;
 
             const recent = recentRefresh.get(userId);
 
@@ -201,8 +217,11 @@ export const Authentication = async (
                 result = recent.result;
             } else {
                 recentRefresh.delete(userId);
-
-                result = await refreshForUser(refreshToken, userId);
+                try {
+                    result = await refreshForUser(refreshToken, userId);
+                } catch (err) {
+                    return clearAuthCookies(res);
+                }
             }
 
             setAuthCookies(res, result.accessToken, result.refreshToken);
