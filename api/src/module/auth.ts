@@ -164,11 +164,13 @@ const setAuthCookies = (
         httpOnly: true,
         secure: true,
         sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: true,
         sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 };
 
@@ -177,7 +179,7 @@ export const Authentication = async (
     res: Response,
     next: NextFunction,
 ) => {
-    const token = req.cookies.accessToken;
+    const token = req.cookies.accessToken ?? "randomAccessToken";
 
     try {
         const claims = jwt.verify(token, process.env.JWT_SECRET!, {
@@ -188,7 +190,7 @@ export const Authentication = async (
 
         next();
     } catch (err) {
-        const refreshToken = req.cookies.refreshToken;
+        const refreshToken = req.cookies.refreshToken ?? "randomRefreshToken";
         const refreshTokenHash = crypto
             .createHash("sha256")
             .update(refreshToken)
@@ -200,8 +202,6 @@ export const Authentication = async (
                     token: refreshTokenHash,
                 },
             });
-
-            console.log("Refresh claims: ", refreshClaims);
 
             if (!refreshClaims || !refreshClaims?.userId) {
                 return clearAuthCookies(res);
@@ -230,10 +230,10 @@ export const Authentication = async (
 
             return next();
         } else {
-            if (req.cookies.refreshToken) {
-            } else {
-                return clearAuthCookies(res);
-            }
+            // if (req.cookies.refreshToken) {
+            // } else {
+            return clearAuthCookies(res);
+            // }
         }
     }
 };
