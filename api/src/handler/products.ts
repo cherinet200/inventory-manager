@@ -177,7 +177,7 @@ export const deleteProduct = async (req: Request, res: Response) => {
 
             return res.json({
                 success: true,
-                message: `Product #${productIds} are deleted successfully!`,
+                message: `The products are deleted successfully!`,
             });
         }
 
@@ -195,7 +195,7 @@ export const deleteProduct = async (req: Request, res: Response) => {
 
         res.json({
             success: true,
-            message: `Product #${productIds} are deleted successfully!`,
+            message: `The products are deleted successfully!`,
         });
     } catch (err) {
         res.status(400).json({ message: "Invalid product ID!", err });
@@ -224,7 +224,7 @@ export const editProduct = async (req: Request, res: Response) => {
 
         res.json({
             success: true,
-            message: `Product #${id} is edited successfully!`,
+            message: `Product updated successfully!`,
             product,
         });
     } catch (err) {
