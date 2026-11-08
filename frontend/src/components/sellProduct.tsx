@@ -23,10 +23,10 @@ function SellProduct({ productId, productData, setSelected }: SellProduct) {
 
     const defaultFormData: SalesData = {
         productId: productId,
-        quantity: 0,
-        price: 0,
-        total: 0,
-        cost: 0,
+        quantity: 1,
+        price: productData.sellingprice,
+        total: productData.sellingprice * 1,
+        cost: productData.buyingprice * productData.quantity,
     };
 
     const [formData, setFormData] = useState<SalesData>(defaultFormData);
@@ -54,6 +54,16 @@ function SellProduct({ productId, productData, setSelected }: SellProduct) {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type } = e.target;
+
+        if (type === "number") {
+            if (value === "") {
+                // setFormData((prevData) => ({
+                //     ...prevData,
+                // }));
+                // return;
+            }
+        }
+
         type === "number"
             ? setFormData((prevData) => ({
                   ...prevData,
@@ -63,10 +73,24 @@ function SellProduct({ productId, productData, setSelected }: SellProduct) {
                   ...prevData,
                   [name]: value,
               }));
+
         name === "quantity" &&
             setFormData((prevData) => ({
                 ...prevData,
+                total: +value * prevData.price,
                 cost: productData.buyingprice * Number(value),
+            }));
+
+        name === "price" &&
+            setFormData((prevData) => ({
+                ...prevData,
+                total: +value * prevData.quantity,
+            }));
+
+        name === "total" &&
+            setFormData((prevData) => ({
+                ...prevData,
+                price: +value / prevData.quantity,
             }));
     };
 
@@ -97,6 +121,7 @@ function SellProduct({ productId, productData, setSelected }: SellProduct) {
                 </div>
             )}
             <ProductForm
+                loadingType="Selling product"
                 type={"Product To Be Sold"}
                 formData={productData}
                 style={style}
