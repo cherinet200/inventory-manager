@@ -1,6 +1,7 @@
 import { createContext, useContext, useState } from "react";
 import type { Pagination, Product, SalesData } from "../types/types";
 import { FormData } from "../types/types";
+import { toast } from "sonner";
 
 interface QueryType {
     query?: string | undefined;
@@ -11,14 +12,14 @@ type Visibility = "flex" | "hidden";
 interface ProductContextType {
     products: Product[];
     fetchProduct: (query?: QueryType, page?: number) => Promise<void>;
-    createProduct: (formData: FormData) => void;
+    createProduct: (formData: FormData) => Promise<string>;
     editProduct: (formData: FormData, productId: number) => void;
     deleteProduct: (productIds: number[]) => void;
     sellProduct: (
         salesData: SalesData,
         setSelected: React.Dispatch<React.SetStateAction<number[]>>,
         setFormData: React.Dispatch<React.SetStateAction<SalesData>>,
-    ) => Promise<string | null>;
+    ) => void;
     formOpen: Visibility;
     editFormOpen: Visibility;
     salesFormOpen: Visibility;
@@ -81,7 +82,15 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
             window.location.reload();
         }
 
-        if (res.status === 201) await fetchProduct();
+        if (res.status === 201) {
+            toast.success(data.message);
+            await fetchProduct();
+            setFormOpen("hidden");
+            return "Success";
+        } else {
+            data.message && toast.error(data.message);
+            return "Error";
+        }
     };
 
     const editProduct = async (formData: FormData, productId: number) => {
@@ -104,7 +113,12 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
             window.location.reload();
         }
 
-        if (res.status === 200) await fetchProduct(undefined, pagination?.page);
+        if (res.status === 200) {
+            toast.success(data.message);
+            await fetchProduct(undefined, pagination?.page);
+        } else {
+            data.message && toast.error(data.message);
+        }
     };
 
     const deleteProduct = async (productIds: number[]) => {
@@ -125,7 +139,12 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
             window.location.reload();
         }
 
-        if (res.status === 200) await fetchProduct(undefined, pagination?.page);
+        if (res.status === 200) {
+            toast.success(data.message);
+            await fetchProduct(undefined, pagination?.page);
+        } else {
+            data.message && toast.error(data.message);
+        }
     };
 
     const sellProduct = async (
@@ -140,40 +159,38 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
             total: 0,
             cost: 0,
         };
-        try {
-            const sellProducts = async () => {
-                return await fetch("/api/sellProduct", {
-                    method: "POST",
-                    credentials: "include",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        ...salesData,
-                    }),
-                });
-            };
-            const res = await sellProducts();
-            const data = await res.json();
+        const sellProducts = async () => {
+            return await fetch("/api/sellProduct", {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    ...salesData,
+                }),
+            });
+        };
+        const res = await sellProducts();
+        const data = await res.json();
 
-            if (data.shouldRefresh) {
-                window.location.reload();
-            }
+        if (data.shouldRefresh) {
+            window.location.reload();
+        }
 
-            if (res.status === 200) {
-                await fetchProduct(undefined, pagination?.page);
-                setSelected([]);
-                setFormData(defaultFormData);
-                setSalesFormOpen("hidden");
+        if (res.status === 200) {
+            toast.success(data.message);
+            await fetchProduct(undefined, pagination?.page);
+            setSelected([]);
+            setFormData(defaultFormData);
+            setSalesFormOpen("hidden");
 
-                setMessage("");
-            } else if (res.status === 400) {
-                setSalesFormOpen("flex");
-                setMessage(data.message);
-            }
-        } catch (err) {
-        } finally {
-            return message;
+            setMessage("");
+        } else if (res.status === 400) {
+            toast.error(data.message);
+            setSalesFormOpen("flex");
+        } else {
+            data.message && toast.error(data.message);
         }
     };
 
