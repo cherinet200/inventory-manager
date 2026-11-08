@@ -81,7 +81,7 @@ function Sidebar({ currentPath }: SidebarProps) {
                 {sidebar.map((item) => (
                     <li
                         key={item.link}
-                        className={`flex items-center gap-4 text-2xl px-10 py-4 hover:bg-red-900 dark:hover:bg-gray-900 cursor-pointer transition-all duration-600 ease-out hover:transform hover:scale-110 ${item.isActive ? "text-blue-500 dark:text-blue-600" : "text-gray-500"}`}
+                        className={`flex items-center gap-4 text-2xl px-10 py-4 hover:bg-gray-100 dark:hover:bg-gray-900 cursor-pointer transition-all duration-600 ease-out hover:transform hover:scale-110 ${item.isActive ? "text-blue-500 dark:text-blue-600" : "text-gray-500"}`}
                         onClick={() => {
                             navigate({ to: item.link });
                         }}
@@ -95,11 +95,11 @@ function Sidebar({ currentPath }: SidebarProps) {
             <div className="flex flex-col mt-auto mb-0.5 py-2 text-center rounded-lg shadow-2xl border border-gray-100 dark:border-gray-900">
                 <div className="flex items-center justify-between px-4 gap-8">
                     <div className="flex items-center gap-4">
-                        <div className="flex items-center justify-center text-gray-300 bg-blue-600/80 h-13 w-13 rounded-[100%] font-semibold text-center font-playfair">
+                        <div className="flex items-center justify-center text-[#1E3A8A] dark:text-[#DBEAFE] bg-[#DBEAFE] dark:bg-[#1E3A8A] h-13 w-13 rounded-[100%] font-semibold text-center font-playfair">
                             CB
                         </div>
                         <div className="flex flex-col">
-                            <div className="text-lg font-medium text-gray-400 leading-none">
+                            <div className="text-lg font-medium text-gray-700 dark:text-gray-400 leading-none">
                                 {name}
                             </div>
                             <div className="text-sm text-gray-500">{email}</div>
@@ -117,7 +117,7 @@ function Sidebar({ currentPath }: SidebarProps) {
 
                 <div
                     ref={userActionsRef}
-                    className={`fixed bg-black/60 text-gray-400 py-1 left-65 top-255 rounded-lg ${showUserActions}`}
+                    className={`fixed bg-black/60 text-gray-400 py-1 left-65 bottom-12 rounded-lg ${showUserActions}`}
                 >
                     <button
                         onClick={() => logout()}
