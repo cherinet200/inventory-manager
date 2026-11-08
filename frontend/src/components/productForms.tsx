@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { Fragment } from "react/jsx-runtime";
 import { useProduct } from "../contexts/products";
 import { FormData } from "../types/types";
+import Dots from "../components/loadingDots";
 
 interface Field {
     label: string;
@@ -12,6 +13,7 @@ interface Field {
 
 interface ProductForm {
     type: string;
+    loadingType: string;
     style?: {
         bg: string;
         titleColor: string;
@@ -22,7 +24,10 @@ interface ProductForm {
     setFormData?: React.Dispatch<React.SetStateAction<FormData>>;
     defaultFormData?: FormData;
     handleChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    handleSubmit?: (e: React.ChangeEvent<HTMLFormElement>) => void;
+    handleSubmit?: (
+        e: React.ChangeEvent<HTMLFormElement>,
+        setIsLoading?: Dispatch<SetStateAction<boolean>>,
+    ) => Promise<void>;
     setVisibility?: (to: "flex" | "hidden") => void;
 }
 
@@ -85,6 +90,10 @@ const fields: Field[] = [
 
 export function CreateProduct() {
     const { createProduct, formOpen, setFormVisibility } = useProduct();
+    const [message, setMessage] = useState<{
+        type: string;
+        message: string;
+    } | null>(null);
 
     const defaultFormData: FormData = {
         productname: "",
@@ -99,11 +108,16 @@ export function CreateProduct() {
     const [formData, setFormData] = useState<FormData>(defaultFormData);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value, type } = e.target;
+        let { name, value, type } = e.target;
+
         type === "number"
             ? setFormData((prevData) => ({
                   ...prevData,
-                  [name]: Number(value),
+                  [name]: !Number.isNaN(value)
+                      ? value.length > 1
+                          ? value.replace(/^0+(?=[\s\S])/, "")
+                          : Number(value)
+                      : 0,
               }))
             : setFormData((prevData) => ({
                   ...prevData,
@@ -111,15 +125,30 @@ export function CreateProduct() {
               }));
     };
 
-    const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
+    const handleSubmit = async (
+        e: React.ChangeEvent<HTMLFormElement>,
+        setIsLoading?: Dispatch<SetStateAction<boolean>>,
+    ) => {
         e.preventDefault();
 
-        createProduct(formData);
-        setFormData(defaultFormData);
-        setFormVisibility("hidden");
+        const data = {
+            ...formData,
+            buyingprice: +formData.buyingprice,
+            sellingprice: +formData.sellingprice,
+            quantity: +formData.quantity,
+            threshold: +formData.threshold,
+        };
+        const message = await createProduct(data);
+
+        setIsLoading && setIsLoading(false);
+        if (message === "Success") {
+            setFormData(defaultFormData);
+            setVisibility("hidden");
+        }
     };
 
     const setVisibility = (to: "flex" | "hidden") => {
+        setMessage(null);
         setFormVisibility(to);
     };
 
@@ -131,7 +160,8 @@ export function CreateProduct() {
             }}
         >
             <ProductForm
-                type="Add Product"
+                type="Create Product"
+                loadingType="Creating Product"
                 formData={formData}
                 setFormData={setFormData}
                 defaultFormData={defaultFormData}
@@ -187,6 +217,7 @@ export function EditProduct({
         >
             <ProductForm
                 type="Edit Product"
+                loadingType="Editing Product"
                 formData={formData}
                 setFormData={setFormData}
                 defaultFormData={defaultFormData}
@@ -200,6 +231,7 @@ export function EditProduct({
 
 export const ProductForm = ({
     type,
+    loadingType,
     style,
     formData,
     setFormData,
@@ -208,13 +240,18 @@ export const ProductForm = ({
     defaultFormData,
     setVisibility,
 }: ProductForm) => {
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const readOnly = type === "Product To Be Sold" ? true : false;
 
     return (
         <>
             <form
                 className={`flex flex-col w-165 rounded-lg ${style ? style.bg : "bg-gray-100 dark:bg-black"} shadow-xl p-8 border border-gray-900 gap-8 select-none`}
-                onSubmit={handleSubmit}
+                onSubmit={(e) => {
+                    setIsLoading(true);
+                    e.preventDefault();
+                    handleSubmit && handleSubmit(e, setIsLoading);
+                }}
                 onMouseDown={(e) => e.stopPropagation()}
             >
                 <h2
@@ -236,16 +273,13 @@ export const ProductForm = ({
                                 id={field.name}
                                 name={field.name}
                                 type={field.type}
-                                value={
-                                    field.type === "number" &&
-                                    formData[field.name] === 0
-                                        ? ""
-                                        : formData[field.name]
-                                }
+                                value={formData[field.name]}
                                 onChange={handleChange}
                                 placeholder={field.placeholder}
-                                className={`w-full p-2.5 border border-gray-600 rounded-lg text-base ${style ? style.inputColor : "text-gray-900 dark:text-gray-300"} outline-none ${readOnly ? "" : "focus:ring-2 focus:ring-gray-500"}`}
+                                className={`w-full p-2.5 border border-gray-600 rounded-lg text-base ${style ? style.inputColor : "text-gray-900 dark:text-gray-300"} outline-none ${readOnly ? "" : "focus:ring-1 focus:ring-gray-500"}`}
                                 required
+                                min={field.type === "number" ? 0 : undefined}
+                                step={field.type === "number" ? "1" : undefined}
                                 readOnly={readOnly}
                             />
                         </Fragment>
@@ -260,21 +294,23 @@ export const ProductForm = ({
                 >
                     <button
                         onClick={() => {
-                            if (setVisibility) setVisibility("hidden");
+                            // remove selected products
                             if (setFormData && defaultFormData)
                                 setFormData(defaultFormData);
+                            if (setVisibility) setVisibility("hidden");
                         }}
-                        className="px-5 py-2 border border-gray-600 rounded-md hover:border-gray-700 hover:text-gray-400 hover:cursor-pointer"
+                        className="px-5 py-2 border border-gray-600 rounded-md hover:border-gray-700 text-black hover:text-gray-800 dark:text-white dark:hover:text-gray-400 hover:cursor-pointer"
                         type="button"
                     >
                         Discard
                     </button>
 
                     <button
-                        className="px-5 py-2 rounded-lg bg-blue-500 dark:bg-blue-600 hover:cursor-pointer text-white"
+                        className="px-5 py-2 flex justify-center items-center gap-3 rounded-lg bg-blue-500 dark:bg-blue-600 hover:cursor-pointer text-white"
                         type="submit"
                     >
-                        {type}
+                        {isLoading ? loadingType : type}
+                        <Dots isLoading={isLoading} />
                     </button>
                 </div>
             </form>
