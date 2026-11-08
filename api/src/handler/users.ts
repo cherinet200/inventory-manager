@@ -193,7 +193,7 @@ export const signIn = async (req: Request, res: Response) => {
         });
 };
 
-export const clearAuthCookies = (res: Response) => {
+export const clearAuthCookies = (res: Response, sendRes?: boolean) => {
     res.clearCookie("user", {
         maxAge: 100 * 365.25 * 24 * 60 * 60 * 1000,
     })
@@ -207,11 +207,29 @@ export const clearAuthCookies = (res: Response) => {
             secure: true,
             sameSite: "strict",
         });
-    res.json({ success: true, message: "Logged out successfully!" });
+    !sendRes &&
+        res.json({
+            success: true,
+            shouldRefresh: true,
+            message: "Logged out successfully!",
+        });
 };
 
 export const logOut = async (req: Request, res: Response) => {
     await deleteRefreshToken(req.user!.id);
 
     return clearAuthCookies(res);
+};
+
+export const deleteAccount = async (req: Request, res: Response) => {
+    const deleted = await prisma.user.delete({
+        where: {
+            id: req.user!.id,
+        },
+    });
+
+    clearAuthCookies(res, false);
+    res.json({
+        message: "Deleted account successfully! We hope to see you again soon!",
+    });
 };
