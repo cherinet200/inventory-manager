@@ -12,7 +12,8 @@ import {
     CircleCheck,
     Pencil,
     BadgeDollarSign,
-    PackageOpen,
+    PackagePlus,
+    PackageSearch,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_auth/inventory")({
@@ -127,7 +128,7 @@ function Inventory() {
             {contextMenu && (
                 <div
                     ref={contextMenuRef}
-                    className="fixed z-30 w-32 rounded-md shadow-lg dark:bg-gray-800"
+                    className="fixed z-30 w-32 rounded-md shadow-lg bg-gray-100/70 dark:bg-gray-800 text-black dark:text-white"
                     style={{
                         left: contextMenu.x,
                         top: contextMenu.y,
@@ -152,7 +153,7 @@ function Inventory() {
                             }
                             setContextMenu(null);
                         }}
-                        className="flex w-full items-center rounded-lg gap-2 px-4 py-2 hover:bg-gray-700"
+                        className="flex w-full items-center rounded-lg gap-2 px-4 py-2 hover:bg-gray-300/70 dark:hover:bg-gray-700"
                     >
                         <CircleCheck className="h-4 w-4" />
                         Select
@@ -163,7 +164,7 @@ function Inventory() {
                             setSalesFormVisibility("flex");
                             setContextMenu(null);
                         }}
-                        className="flex w-full items-center rounded-lg gap-2 px-4 py-2 hover:bg-gray-700"
+                        className="flex w-full items-center rounded-lg gap-2 px-4 py-2 hover:bg-gray-300/70 dark:hover:bg-gray-700"
                     >
                         <BadgeDollarSign className="h-4 w-4" />
                         Sell
@@ -174,7 +175,7 @@ function Inventory() {
                             setEditFormVisibility("flex");
                             setContextMenu(null);
                         }}
-                        className="flex w-full items-center gap-2 rounded-lg px-4 py-2  hover:text-amber-400 hover:bg-gray-700"
+                        className="flex w-full items-center gap-2 rounded-lg px-4 py-2  hover:text-amber-600 hover:bg-gray-300/70 dark:hover:bg-gray-700"
                     >
                         <Pencil className="h-4 w-4" />
                         Edit
@@ -185,7 +186,7 @@ function Inventory() {
                             setSelected([]);
                             setContextMenu(null);
                         }}
-                        className="flex w-full items-center gap-2 rounded-lg px-4 py-2 hover:text-red-600 hover:bg-gray-700"
+                        className="flex w-full items-center gap-2 rounded-lg px-4 py-2 hover:text-red-600 hover:bg-gray-300/70 dark:hover:bg-gray-700"
                     >
                         <Trash2 className="h-4 w-4" />
                         Delete
@@ -203,22 +204,65 @@ function Inventory() {
                 </div>
             )}
             {!isLoading && products.length === 0 && (
-                <div className="flex flex-col justify-center items-center gap-8 h-[50dvh] p-10">
-                    <div className="flex flex-col justify-center items-center">
-                        <PackageOpen size={300} className="text-gray-800" />
-                        <div className="text-2xl text-gray-400 font-semibold">
-                            No products found.
-                        </div>
-                    </div>
-                    {!searchedPage && (
-                        <button
-                            onClick={() => setFormVisibility("flex")}
-                            className="w-full p-2.5 rounded-md bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-800 dark:hover:text-gray-200 hover:cursor-pointer"
-                        >
-                            Create New Product
-                        </button>
+                <>
+                    {!searchedPage ? (
+                        <>
+                            <div className="flex justify-between items-center mb-4 py-2 px-8 border-b border-gray-400/10">
+                                <h2 className="text-left text-2xl text-gray-700 dark:text-gray-300">
+                                    Products
+                                </h2>
+                                <span className="px-2 py-0.5 rounded-2xl bg-blue-600/10 text-blue-600/80">
+                                    0 Products
+                                </span>
+                            </div>
+
+                            <div className="py-5 text-center flex flex-col justify-center items-center gap-4">
+                                <div className="bg-blue-600/15 p-6 rounded-full">
+                                    <PackagePlus className="text-blue-600 w-10 h-10" />
+                                </div>
+                                <span className="font-playfair font-semibold text-black dark:text-white">
+                                    No products yet
+                                </span>
+                                <span className="font-extralight text-gray-400">
+                                    You haven't added any products to your
+                                    inventory. Get started by creating your
+                                    first product.
+                                </span>
+                                <button
+                                    onClick={() => setFormVisibility("flex")}
+                                    className="px-4 py-1 rounded-md bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-700/90 dark:hover:text-gray-200 hover:cursor-pointer flex justify-center items-center gap-3"
+                                >
+                                    <span className="text-3xl">+</span> Add Your
+                                    First Product
+                                </button>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <div className="flex justify-between items-center mb-4 py-2 px-8 border-b border-gray-400/10">
+                                <h2 className="text-left text-2xl text-gray-700 dark:text-gray-300">
+                                    Products
+                                </h2>
+                                <span className="px-2 py-0.5 rounded-2xl bg-gray-100/8 text-gray-100/50">
+                                    0 Products
+                                </span>
+                            </div>
+                            <div className="py-5 text-center flex flex-col justify-center items-center gap-4">
+                                <div className="bg-blue-600/15 p-6 rounded-full">
+                                    <PackageSearch className="text-blue-600 w-10 h-10" />
+                                </div>
+                                <span className="font-playfair font-semibold text-black dark:text-white">
+                                    No products found
+                                </span>
+                                <span className="font-extralight text-gray-400">
+                                    We couldn't find any products matching your
+                                    search. Try a different keyword or check
+                                    your spelling.
+                                </span>
+                            </div>
+                        </>
                     )}
-                </div>
+                </>
             )}
             {!isLoading && products.length > 0 && (
                 <div className="flex flex-col overflow-x-auto">
@@ -238,7 +282,7 @@ function Inventory() {
                                     if (selected.length === 1)
                                         setEditFormVisibility("flex");
                                 }}
-                                className={`flex gap-2 items-center px-2 py-2 border border-gray-600 rounded-md hover:border-amber-400 hover:text-amber-400 hover:cursor-pointer ${selected.length !== 1 && "text-gray-400"}`}
+                                className={`flex gap-2 items-center px-2 py-2 border border-gray-600 rounded-md hover:border-amber-400 hover:text-amber-400 hover:cursor-pointer text-black dark:text-white ${selected.length !== 1 && "dark:text-gray-400 text-gray-500"}`}
                             >
                                 <Pencil size={16} /> Edit
                             </button>
@@ -247,11 +291,11 @@ function Inventory() {
                                     deleteProduct(selected);
                                     setSelected([]);
                                 }}
-                                className={`flex gap-2 items-center px-2 py-2 border border-gray-600 rounded-md hover:border-red-600 hover:text-red-600 hover:cursor-pointer ${selected.length < 1 && "text-gray-400"}`}
+                                className={`flex gap-2 items-center px-2 py-2 border border-gray-600 rounded-md hover:border-red-600 hover:text-red-600 hover:cursor-pointer text-black dark:text-white ${selected.length < 1 && "dark:text-gray-400 text-gray-500"}`}
                             >
                                 <Trash2 size={16} /> Delete
                             </button>
-                            <button className="flex gap-2 items-center px-2 py-2 border border-gray-600 rounded-md hover:border-gray-700 hover:text-gray-400 hover:cursor-pointer">
+                            <button className="flex gap-2 items-center px-2 py-2 border border-gray-600 rounded-md hover:border-gray-700 hover:text-gray-400 hover:cursor-pointer text-black dark:text-white">
                                 <ListFilter size={16} /> Filters
                             </button>
                         </div>
@@ -301,7 +345,7 @@ function Inventory() {
                             {products.map((product) => (
                                 <tr
                                     key={product.id}
-                                    className="hover:bg-gray-100 dark:hover:bg-gray-900"
+                                    className="hover:bg-gray-100 group dark:hover:bg-gray-900"
                                     onClick={() => {
                                         selected.length !== 0 &&
                                             setSelected((prev) =>
@@ -344,7 +388,15 @@ function Inventory() {
                                         {product.quantity + " " + product.unit}
                                     </Td>
                                     <Td>{product.threshold}</Td>
-                                    <Td>{date(product.expirydate)}</Td>
+                                    <Td style="flex gap-4 justify-between">
+                                        {date(product.expirydate)}
+                                        <div className="flex gap-4 invisible opacity-0 group-hover:visible group-hover:opacity-100 items-center  transition-opacity duration-200">
+                                            <CircleCheck className="h-4 w-4" />
+                                            <Pencil size={16} />
+                                            <BadgeDollarSign className="h-4 w-4" />
+                                            <Trash2 size={16} />
+                                        </div>
+                                    </Td>
                                 </tr>
                             ))}
                         </tbody>
