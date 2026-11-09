@@ -2,19 +2,24 @@ import { createFileRoute } from "@tanstack/react-router";
 import Logo from "../assets/inventory.png";
 import { useEffect, useState } from "react";
 import { Check } from "lucide-react";
+import Dots from "../components/loadingDots";
+import Cookies from "js-cookie";
 
 export const Route = createFileRoute("/forgot-password")({
     component: RouteComponent,
 });
 
 function RouteComponent() {
+    const Email = Cookies.get("Email") ?? "";
+
     const [message, setMessage] = useState("");
     const [wMessage, setWMessage] = useState("");
     const [sent, setSent] = useState<boolean>(false);
     const [seconds, setSeconds] = useState<number>(30);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const [showMessage, setShowMessage] = useState(false);
     const [showWarning, setShowWarning] = useState(false);
-    const [email, setEmail] = useState("");
+    const [email, setEmail] = useState<string>(Email);
     const [warningStyle, setWarningStyle] = useState({
         email: "",
         emoving: false,
@@ -50,6 +55,7 @@ function RouteComponent() {
     const handleForgotPassword = async (
         e: React.ChangeEvent<HTMLFormElement>,
     ) => {
+        setIsLoading(true);
         e.preventDefault();
 
         if (!isValidEmail(email)) {
@@ -92,6 +98,9 @@ function RouteComponent() {
 
         setSent(true);
         setSeconds(30);
+
+        Cookies.remove("Email");
+        setIsLoading(false);
 
         setTimeout(() => {
             setShowMessage(false);
@@ -194,10 +203,11 @@ function RouteComponent() {
 
                     <button
                         type="submit"
-                        disabled={sent && seconds > 0}
-                        className="text-lg text-white bg-blue-500 dark:bg-blue-600 font-normal cursor-pointer border-none rounded-md w-full p-2.5"
+                        disabled={isLoading || (sent && seconds > 0)}
+                        className="flex items-center justify-center gap-3 text-lg text-white bg-blue-500 dark:bg-blue-600 font-normal cursor-pointer border-none rounded-md w-full p-2.5"
                     >
-                        Send Email
+                        {isLoading ? "Sending Email" : "Send Email"}
+                        {<Dots isLoading={isLoading} />}
                     </button>
                 </div>
             </form>
