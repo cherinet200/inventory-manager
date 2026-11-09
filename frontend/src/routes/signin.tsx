@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import React, { useState } from "react";
 import Logo from "../assets/inventory.png";
 import { Eye, EyeOff } from "lucide-react";
+import Dots from "../components/loadingDots";
+import Cookies from "js-cookie";
 
 export const Route = createFileRoute("/signin")({
     component: Signin,
@@ -12,11 +14,9 @@ function Signin() {
         email: "",
         password: "",
     });
-    const [message, setMessage] = useState(
-        "Login successful! Redirecting to dashboard...",
-    );
     const [showMessage, setShowMessage] = useState(false);
     const [showWarning, setShowWarning] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setShowWarning(false);
@@ -31,6 +31,7 @@ function Signin() {
     };
 
     const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
+        setIsLoading(true);
         e.preventDefault();
 
         const res = await fetch("/auth/signin", {
@@ -48,22 +49,15 @@ function Signin() {
         if (!response.success) setShowWarning(true);
         if (response.success) {
             setShowMessage(true);
-            window.location.href = "/dashboard";
+            const path = Cookies.get("tryingTo") ?? "/dashboard";
+            window.location.href = path;
+            Cookies.remove("tryingTo");
         }
+        setIsLoading(false);
     };
 
     return (
         <div className="flex justify-center items-center h-screen gap-100 dark:bg-gray-950">
-            {showMessage && (
-                <div className="fixed top-4 left-1/2 -translate-x-1/2 rounded text-green-600 px-8 py-4 shadow-lg bg-green-600/15">
-                    {message}
-                </div>
-            )}
-            {showWarning && (
-                <div className="fixed top-4 left-1/2 -translate-x-1/2 rounded text-red-600 px-8 py-4 shadow-lg bg-red-600/15">
-                    Invalid credentials!
-                </div>
-            )}
             <div className="w-[20%] h-full hidden justify-center items-center lg:flex">
                 <img src={Logo} alt="Brand" />
             </div>
@@ -97,6 +91,7 @@ function Signin() {
                             placeholder="Enter your email"
                             className="w-full p-2.5 border border-gray-600 rounded-md text-base"
                             required
+                            autoFocus
                         />
                     </div>
                     <div className="w-full">
@@ -128,9 +123,10 @@ function Signin() {
                     <button
                         type="button"
                         className="text-base text-blue-500 font-medium self-end decoration-none cursor-pointer"
-                        onClick={() =>
-                            (window.location.href = "/forgot-password")
-                        }
+                        onClick={() => {
+                            Cookies.set("Email", formData.email);
+                            window.location.href = "/forgot-password";
+                        }}
                     >
                         Forgot password
                     </button>
@@ -138,9 +134,11 @@ function Signin() {
                 <div className="w-full flex justify-center items-center flex-col gap-5">
                     <button
                         type="submit"
-                        className="text-lg text-white bg-blue-500 dark:bg-blue-600 font-normal cursor-pointer border-none rounded-md w-full p-2.5"
+                        className="text-lg flex justify-center items-center gap-3 text-white bg-blue-500 dark:bg-blue-600 font-normal cursor-pointer border-none rounded-md w-full p-2.5"
+                        disabled={isLoading}
                     >
-                        Sign in
+                        {isLoading ? "Signing in" : "Sign in"}
+                        {<Dots isLoading={isLoading} />}
                     </button>
                     <div className="text-base text-gray-400 align-center">
                         Don't have an account?{" "}
