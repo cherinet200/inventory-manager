@@ -5,10 +5,9 @@ import { useSales } from "../contexts/sales";
 import {
     ListFilter,
     Trash2,
-    LoaderCircle,
     CircleCheck,
     BadgeDollarSign,
-    PackageOpen,
+    ShoppingCart,
 } from "lucide-react";
 
 type ContextMenu = {
@@ -144,20 +143,29 @@ function RouteComponent() {
                 </div>
             )}
             {!isLoading && sales.length === 0 && (
-                <div className="flex flex-col justify-center items-center gap-8 h-[50dvh] p-10">
-                    <div className="flex flex-col justify-center items-center">
-                        <PackageOpen size={300} className="text-gray-800" />
-                        <div className="text-2xl text-gray-400 font-semibold">
-                            No sales found.
-                        </div>
+                <>
+                    <div className="flex justify-between items-center mb-4 py-2 px-8 border-b border-gray-400/10">
+                        <h2 className="text-left text-2xl text-gray-700 dark:text-gray-300">
+                            Sales
+                        </h2>
+                        <span className="px-2 py-0.5 rounded-2xl bg-blue-600/10 text-blue-600/80">
+                            0 Sales
+                        </span>
                     </div>
-                    {/* <button
-                            onClick={() => setSalesFormVisibility("flex")}
-                            className="w-full p-2.5 rounded-md bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-800 dark:hover:text-gray-200 hover:cursor-pointer"
-                        >
-                            Sell Product
-                        </button> */}
-                </div>
+
+                    <div className="py-5 text-center flex flex-col justify-center items-center gap-4">
+                        <div className="bg-blue-600/15 p-6 rounded-full">
+                            <ShoppingCart className="text-blue-600 w-10 h-10" />
+                        </div>
+                        <span className="font-playfair font-semibold text-black dark:text-white">
+                            No sales yet
+                        </span>
+                        <span className="font-extralight text-gray-400">
+                            Your sales data will appear here once you start
+                            making sales.
+                        </span>
+                    </div>
+                </>
             )}
             {!isLoading && sales.length > 0 && (
                 <div className="flex flex-col">
