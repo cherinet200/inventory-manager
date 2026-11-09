@@ -5,6 +5,7 @@ import { Link } from "@tanstack/react-router";
 import { Eye, EyeOff, Check } from "lucide-react";
 import VerifyCode, { handleVerification } from "../components/verificationCode";
 import AuthLayout, { FormLayout } from "../components/authLayout";
+import Dots from "../components/loadingDots";
 
 export const Route = createFileRoute("/signup")({
     component: Signup,
@@ -387,19 +388,11 @@ function Signup() {
                     <div className="w-full flex justify-center items-center flex-col gap-5">
                         <button
                             type="submit"
-                            className={`text-lg flex justify-center gap-4 text-white bg-blue-500 dark:bg-blue-600 font-normal ${!isLoading ? "cursor-pointer" : "cursor-wait"} border-none rounded-md w-full p-2.5`}
+                            className={`text-lg flex justify-center gap-3 text-white bg-blue-500 dark:bg-blue-600 font-normal ${!isLoading ? "cursor-pointer" : "cursor-wait"} border-none rounded-md w-full p-2.5`}
                             disabled={isLoading}
                         >
                             {isLoading ? "Creating an account" : "Get started "}
-                            {isLoading && (
-                                <div className="flex justify-center gap-4">
-                                    <div className="flex items-center gap-1.5">
-                                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gray-300 [animation-delay:-0.3s] [animation-duration:1s]" />
-                                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gray-300 [animation-delay:-1.5s] [animation-duration:1s]" />
-                                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gray-300 [animation-duration:1s]" />
-                                    </div>
-                                </div>
-                            )}
+                            {<Dots isLoading={isLoading} />}
                         </button>
                         <div className="text-base text-gray-400 align-center">
                             Already have an account?{" "}
