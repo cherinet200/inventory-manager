@@ -9,6 +9,8 @@ import {
     CircleDollarSign,
     Tags,
     Boxes,
+    PackageOpen,
+    PackageCheck,
 } from "lucide-react";
 import { Td, Th } from "../components/table";
 import { Product } from "../types/types";
@@ -124,12 +126,12 @@ export default function Dashboard() {
     }, []);
     return (
         <div className="flex gap-8 m-10">
-            <div className="flex flex-col w-[70%] gap-4">
+            <div className="flex flex-col w-[69.6%] gap-4">
                 {sales && <Overview overview={sales} view="Sales" />}
                 <Overview overview={purchase} view="Purchase" />
                 <TopSellingStock />
             </div>
-            <div className="flex flex-col w-[30%] gap-4">
+            <div className="flex flex-col w-[30.4%] gap-4">
                 <ProductSummary />
                 <LowQuantityStock />
             </div>
@@ -142,7 +144,7 @@ const Overview = ({ view, overview }: OverviewComponent) => {
         <div className="flex flex-col bg-white dark:bg-gray-950 rounded-md  px-5 py-6.5">
             <div className="flex items-center justify-between mb-6">
                 <section className="w-full max-w-4xl">
-                    <h2 className="text-[20px] font-medium font-playfair">
+                    <h2 className="text-[20px] font-medium font-playfair text-black dark:text-white">
                         {view} Overview
                     </h2>
                 </section>
@@ -226,10 +228,10 @@ const TopSellingStock = () => {
         <div className="flex flex-col py-4 bg-white dark:bg-gray-950 rounded-md overflow-x-auto">
             <section className="w-full px-5">
                 <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-[20px] font-medium font-playfair">
+                    <h2 className="text-[20px] font-medium font-playfair text-black dark:text-white">
                         Top Selling Stock
                     </h2>
-                    <div className="flex gap-2">
+                    <div className={`flex gap-4`}>
                         <select
                             name="time-range"
                             id="top-selling-time-range"
@@ -281,36 +283,53 @@ const TopSellingStock = () => {
                                 last year
                             </option>
                         </select>
-                        <button className="py-2 px-4 text-blue-600 hover:bg-blue-600/25 bg-blue-600/10 rounded-2xl">
-                            See All
-                        </button>
                     </div>
                 </div>
             </section>
-            {topSelling && (
-                <table className="divide-y divide-gray-100 dark:divide-gray-900">
-                    <thead className="bg-white dark:bg-gray-950">
-                        <tr className="">
-                            <Th>Name</Th>
-                            <Th>Sold Quantity</Th>
-                            <Th>Remaining Quantity</Th>
-                            <Th>Price</Th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100 dark:divide-gray-900">
-                        {topSelling.map((product, index) => (
-                            <tr
-                                key={index}
-                                className="hover:bg-gray-100 dark:hover:bg-gray-900"
-                            >
-                                <Td>{product.name}</Td>
-                                <Td>{product.sold}</Td>
-                                <Td>{product.remaining}</Td>
-                                <Td>{product.price}</Td>
+            {topSelling.length > 0 ? (
+                <>
+                    <table className="divide-y divide-gray-100 dark:divide-gray-900">
+                        <thead className="bg-white dark:bg-gray-950">
+                            <tr className="">
+                                <Th>Name</Th>
+                                <Th>Sold Quantity</Th>
+                                <Th>Remaining Quantity</Th>
+                                <Th>Price</Th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100 dark:divide-gray-900">
+                            {topSelling.map((product, index) => (
+                                <tr
+                                    key={index}
+                                    className="hover:bg-gray-100 dark:hover:bg-gray-900"
+                                >
+                                    <Td>{product.name}</Td>
+                                    <Td>{product.sold}</Td>
+                                    <Td>{product.remaining}</Td>
+                                    <Td>{product.price}</Td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    {topSelling.length > 3 && (
+                        <button className="text-center mt-4 py-2 px-4 text-blue-600 hover:bg-blue-600/25 bg-blue-600/10 rounded-2xl">
+                            View all
+                        </button>
+                    )}
+                </>
+            ) : (
+                <div className="py-5 text-center flex flex-col justify-center items-center gap-4">
+                    <div className="bg-blue-600/15 p-6 rounded-full">
+                        <ShoppingCart className="text-blue-600 w-10 h-10" />
+                    </div>
+                    <span className="font-playfair font-semibold text-black dark:text-white">
+                        No sales found
+                    </span>
+                    <span className="font-extralight text-gray-400">
+                        No products were sold {"today"}. Try selecting a
+                        different date range to see your best-selling products.
+                    </span>
+                </div>
             )}
         </div>
     );
@@ -337,19 +356,20 @@ const LowQuantityStock = () => {
     }, []);
     return (
         <div className="flex flex-col py-4 bg-white dark:bg-gray-950 rounded-md ">
-            <section className="w-full px-5 py-5">
-                <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-[20px] font-medium font-playfair">
+            <section className="w-full px-5 py-2">
+                <div className="flex items-center justify-between mb-8 border-b border-gray-100 dark:border-gray-900 pb-2">
+                    <h2 className="text-[20px] font-medium font-playfair text-black dark:text-white">
                         Low Quantity Stock
                     </h2>
-                    {lowQuantity.length > 1 && (
-                        <button className="py-2 px-4 text-blue-600 hover:bg-blue-600/25 bg-blue-600/10 rounded-2xl">
-                            See All
-                        </button>
+                    {lowQuantity.length > 0 && (
+                        <span className="px-2 py-0.5 rounded-2xl bg-red-500/10 dark:bg-red-800/20 text-red-500 dark:text-red-700 text-sm">
+                            {lowQuantity.length} product
+                            {lowQuantity.length > 1 && "s"}
+                        </span>
                     )}
                 </div>
 
-                {lowQuantity.length > 0 && (
+                {lowQuantity.length > 0 ? (
                     <div className="flex flex-col gap-4">
                         {lowQuantity.map((product, index) => (
                             <div
@@ -357,19 +377,40 @@ const LowQuantityStock = () => {
                                 className="flex justify-between items-center"
                             >
                                 <div className="flex flex-col">
-                                    <div className="text-gray-300 font-bold">
+                                    <div className="text-gray-700 dark:text-gray-300 font-semibold">
                                         {product.name}
                                     </div>
-                                    <div className="text-gray-400">
-                                        Remaining Quantity:{" "}
-                                        {product.quantity + " " + product.unit}
+                                    <div className="text-gray-500 dark:text-gray-400">
+                                        Minimum stock:{" "}
+                                        {product.threshold + " " + product.unit}
                                     </div>
                                 </div>
-                                <div className="px-2 py-0.5 rounded-2xl bg-red-800/20 text-red-800">
-                                    Low
+                                <div className="px-2 py-0.5 rounded-2xl bg-red-500/10 dark:bg-red-800/20 text-red-500 dark:text-red-700 text-sm">
+                                    {product.quantity} left
                                 </div>
                             </div>
                         ))}
+                        {lowQuantity.length > 3 && (
+                            <button className="text-center mt-4 py-2 px-4 text-blue-600 hover:bg-blue-600/25 bg-blue-600/10 rounded-2xl">
+                                View all
+                            </button>
+                        )}
+                    </div>
+                ) : (
+                    <div className="py-5 text-center flex flex-col justify-center items-center gap-4">
+                        <div className="bg-green-400/15 p-4 rounded-full">
+                            <PackageCheck className="text-green-400" />
+                        </div>
+                        <span className="font-playfair font-semibold text-black dark:text-white">
+                            You are all stocked up!
+                        </span>
+                        <span className="font-extralight text-gray-400">
+                            All your products have sufficient stock. No products
+                            need restocking right now.
+                        </span>
+                        <span className="px-2 py-0.5 rounded-2xl bg-green-400/15 text-green-600">
+                            0 Low Stock Products
+                        </span>
                     </div>
                 )}
             </section>
@@ -403,12 +444,12 @@ const ProductSummary = () => {
         <div className="flex flex-col py-4 px-5 bg-white dark:bg-gray-950 rounded-md overflow-x-auto">
             <section className="w-full">
                 <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-[20px] font-medium font-playfair">
+                    <h2 className="text-[20px] font-medium font-playfair text-black dark:text-white">
                         Product Summary
                     </h2>
                 </div>
             </section>
-            <div className="flex justify-center divide-x divide-gray-800">
+            <div className="flex justify-center divide-x divide-gray-100 dark:divide-gray-800">
                 <div className="flex flex-col gap-1 pr-6 items-center">
                     <div className="flex items-center gap-8">
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-green-400/15">
