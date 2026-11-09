@@ -8,6 +8,7 @@ import type { User } from "../types/types.js";
 import Sidebar from "../components/sidebar.js";
 import Navbar from "../components/navbar.js";
 import { CreateProduct } from "../components/productForms.js";
+import Cookies from "js-cookie";
 
 export const Route = createFileRoute("/_auth")({
     beforeLoad({ context }) {
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/_auth")({
             ((context as { token: string | null }).token === null &&
                 (context as { refToken: string | null }).refToken === null)
         ) {
+            Cookies.set("tryingTo", window.location.pathname);
             throw redirect({
                 to: "/signin",
             });
@@ -29,7 +31,7 @@ function RouteComponent() {
         select: (state) => state.location.pathname,
     });
     return (
-        <div className="grid lg:grid-cols-[1fr_5fr] gap-0.5 bg-gray-100 dark:bg-gray-900 selection:bg-blue-700/80 dark:selection:bg-blue-800/60 selection:text-white">
+        <div className="grid lg:grid-cols-[1fr_5fr] gap-0.5 bg-gray-100 dark:bg-gray-900 selection:bg-blue-800/80 dark:selection:bg-blue-800/60 selection:text-white">
             <CreateProduct />
             <div className="hidden lg:flex bg-white dark:bg-gray-950 rounded-md shadow-sm">
                 <Sidebar currentPath={pathname} />
