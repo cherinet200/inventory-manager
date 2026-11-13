@@ -29,6 +29,7 @@ interface ProductForm {
         setIsLoading?: Dispatch<SetStateAction<boolean>>,
     ) => Promise<void>;
     setVisibility?: (to: "flex" | "hidden") => void;
+    setSelected?: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
 interface EditProduct {
@@ -224,6 +225,7 @@ export function EditProduct({
                 handleChange={handleChange}
                 handleSubmit={handleSubmit}
                 setVisibility={setVisibility}
+                setSelected={setSelected}
             />
         </div>
     );
@@ -239,6 +241,7 @@ export const ProductForm = ({
     handleSubmit,
     defaultFormData,
     setVisibility,
+    setSelected,
 }: ProductForm) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const readOnly = type === "Product To Be Sold" ? true : false;
@@ -294,7 +297,7 @@ export const ProductForm = ({
                 >
                     <button
                         onClick={() => {
-                            // remove selected products
+                            setSelected && setSelected([]);
                             if (setFormData && defaultFormData)
                                 setFormData(defaultFormData);
                             if (setVisibility) setVisibility("hidden");

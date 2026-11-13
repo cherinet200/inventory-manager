@@ -165,6 +165,7 @@ function SellProduct({ productId, productData, setSelected }: SellProduct) {
                 <div className="flex justify-end gap-4">
                     <button
                         onClick={() => {
+                            setSelected && setSelected([]);
                             setSalesFormVisibility("hidden");
                             setFormData(defaultFormData);
                         }}
