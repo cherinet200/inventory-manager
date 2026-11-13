@@ -128,7 +128,7 @@ function Inventory() {
             {contextMenu && (
                 <div
                     ref={contextMenuRef}
-                    className="fixed z-30 w-32 rounded-md shadow-lg bg-gray-100/70 dark:bg-gray-800 text-black dark:text-white"
+                    className="fixed z-30 w-32 rounded-md shadow-lg bg-gray-100/70 dark:bg-gray-900/70 text-black dark:text-white"
                     style={{
                         left: contextMenu.x,
                         top: contextMenu.y,
@@ -153,7 +153,7 @@ function Inventory() {
                             }
                             setContextMenu(null);
                         }}
-                        className="flex w-full items-center rounded-lg gap-2 px-4 py-2 hover:bg-gray-300/70 dark:hover:bg-gray-700"
+                        className="flex w-full items-center rounded-lg gap-2 px-4 py-2 hover:bg-gray-300/70 dark:hover:bg-gray-800/50"
                     >
                         <CircleCheck className="h-4 w-4" />
                         Select
@@ -164,7 +164,7 @@ function Inventory() {
                             setSalesFormVisibility("flex");
                             setContextMenu(null);
                         }}
-                        className="flex w-full items-center rounded-lg gap-2 px-4 py-2 hover:bg-gray-300/70 dark:hover:bg-gray-700"
+                        className="flex w-full items-center rounded-lg gap-2 px-4 py-2 hover:bg-gray-300/70 dark:hover:bg-gray-800/50"
                     >
                         <BadgeDollarSign className="h-4 w-4" />
                         Sell
@@ -175,7 +175,7 @@ function Inventory() {
                             setEditFormVisibility("flex");
                             setContextMenu(null);
                         }}
-                        className="flex w-full items-center gap-2 rounded-lg px-4 py-2  hover:text-amber-600 hover:bg-gray-300/70 dark:hover:bg-gray-700"
+                        className="flex w-full items-center gap-2 rounded-lg px-4 py-2  hover:text-amber-600 hover:bg-gray-300/70 dark:hover:bg-gray-800/50"
                     >
                         <Pencil className="h-4 w-4" />
                         Edit
@@ -186,7 +186,7 @@ function Inventory() {
                             setSelected([]);
                             setContextMenu(null);
                         }}
-                        className="flex w-full items-center gap-2 rounded-lg px-4 py-2 hover:text-red-600 hover:bg-gray-300/70 dark:hover:bg-gray-700"
+                        className="flex w-full items-center gap-2 rounded-lg px-4 py-2 hover:text-red-600 hover:bg-gray-300/70 dark:hover:bg-gray-800/50"
                     >
                         <Trash2 className="h-4 w-4" />
                         Delete
@@ -304,25 +304,23 @@ function Inventory() {
                         <thead className="sticky top-22 bg-white dark:bg-gray-950">
                             <tr className="">
                                 <Th style="flex gap-4 items-center">
-                                    {selected.length !== 0 && (
-                                        <input
-                                            type="checkbox"
-                                            name="check"
-                                            id="checkAll"
-                                            className="appearance-none w-3 h-3 rounded-[100px] border-2 border-gray-500 bg-black checked:border-blue-600 cursor-pointer"
-                                            onChange={() => {
-                                                selected.length !==
-                                                ProductsId.length
-                                                    ? setSelected(ProductsId)
-                                                    : setSelected([]);
-                                            }}
-                                            checked={
-                                                selected.length ===
-                                                ProductsId.length
-                                            }
-                                        />
-                                    )}
-                                    name
+                                    <input
+                                        type="checkbox"
+                                        name="check"
+                                        id="checkAll"
+                                        className={` ${selected.length !== 0 ? "visible" : "invisible"} appearance-none w-3 h-3 rounded-[100px] border-2 border-gray-300 dark:border-gray-500 bg-white dark:bg-black checked:border-blue-600 dark:checked:border-blue-600 cursor-pointer`}
+                                        onChange={() => {
+                                            selected.length !==
+                                            ProductsId.length
+                                                ? setSelected(ProductsId)
+                                                : setSelected([]);
+                                        }}
+                                        checked={
+                                            selected.length ===
+                                            ProductsId.length
+                                        }
+                                    />
+                                    Name
                                 </Th>
                                 <Th>Buyingprice</Th>
                                 <Th>Sellingprice</Th>
@@ -362,24 +360,21 @@ function Inventory() {
                                     }
                                 >
                                     <Td style="first-letter:uppercase flex gap-4 items-center">
-                                        {selected.length !== 0 && (
-                                            <input
-                                                type="checkbox"
-                                                name="check"
-                                                id={product.id + ""}
-                                                className="appearance-none w-3 h-3 rounded-[100px] border-2 border-gray-500 bg-black checked:border-blue-600 cursor-pointer"
-                                                checked={
-                                                    selected.includes(
-                                                        product.id,
-                                                    ) && true
-                                                }
-                                                onChange={() => {
-                                                    setSelected((prev) => [
-                                                        ...prev,
-                                                    ]);
-                                                }}
-                                            />
-                                        )}
+                                        <input
+                                            type="checkbox"
+                                            name="check"
+                                            id={product.id + ""}
+                                            className={` ${selected.length !== 0 ? "visible" : "invisible"} appearance-none w-3 h-3 rounded-[100px] border-2 border-gray-300 dark:border-gray-500 bg-white dark:bg-black checked:border-blue-600 dark:checked:border-blue-600 cursor-pointer`}
+                                            checked={
+                                                selected.includes(product.id) &&
+                                                true
+                                            }
+                                            onChange={() => {
+                                                setSelected((prev) => [
+                                                    ...prev,
+                                                ]);
+                                            }}
+                                        />
                                         {product.name}
                                     </Td>
                                     <Td>{product.buyingprice}</Td>
@@ -390,11 +385,66 @@ function Inventory() {
                                     <Td>{product.threshold}</Td>
                                     <Td style="flex gap-4 justify-between">
                                         {date(product.expirydate)}
-                                        <div className="flex gap-4 invisible opacity-0 group-hover:visible group-hover:opacity-100 items-center  transition-opacity duration-200">
-                                            <CircleCheck className="h-4 w-4" />
-                                            <Pencil size={16} />
-                                            <BadgeDollarSign className="h-4 w-4" />
-                                            <Trash2 size={16} />
+                                        <div className="flex gap-4 opacity-0 group-hover:visible group-hover:opacity-100 items-center  transition-opacity duration-200">
+                                            <CircleCheck
+                                                className="h-4 w-4"
+                                                onClick={() => {
+                                                    if (selected.length !== 0) {
+                                                        if (
+                                                            selected.includes(
+                                                                +product.id,
+                                                            )
+                                                        ) {
+                                                            setContextMenu(
+                                                                null,
+                                                            );
+                                                        } else {
+                                                            setSelected(
+                                                                (prev) => [
+                                                                    ...prev,
+                                                                    +product.id,
+                                                                ],
+                                                            );
+                                                        }
+                                                    } else {
+                                                        setSelected((prev) => [
+                                                            ...prev,
+                                                            +product.id,
+                                                        ]);
+                                                    }
+                                                    setContextMenu(null);
+                                                }}
+                                            />
+                                            <Pencil
+                                                size={16}
+                                                onClick={() => {
+                                                    setSelected([+product.id]);
+                                                    setEditFormVisibility(
+                                                        "flex",
+                                                    );
+                                                    setContextMenu(null);
+                                                }}
+                                            />
+                                            <BadgeDollarSign
+                                                className="h-4 w-4"
+                                                onClick={() => {
+                                                    setSelected([+product.id]);
+                                                    setSalesFormVisibility(
+                                                        "flex",
+                                                    );
+                                                    setContextMenu(null);
+                                                }}
+                                            />
+                                            <Trash2
+                                                size={16}
+                                                onClick={() => {
+                                                    deleteProduct([
+                                                        +product.id,
+                                                    ]);
+                                                    setSelected([]);
+                                                    setContextMenu(null);
+                                                }}
+                                            />
                                         </div>
                                     </Td>
                                 </tr>
